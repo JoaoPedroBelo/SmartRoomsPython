@@ -46,7 +46,7 @@ while True:  # making a loop
             print("Sensor dentro activado")
             print()
 
-            if rooms <= 4:
+            if rooms < 4:
                 sensordata = (str(SensorActivate) + ',' + str(rooms))
                 print(sensordata)
                 print()
@@ -78,7 +78,7 @@ while True:  # making a loop
             print()
             Sensor_In = 0
             Sensor_Out = 1
-            if rooms <= 4:
+            if rooms < 4:
 
                 sensordata = (str(SensorActivate) + ',' + str(rooms))
                 print(sensordata)

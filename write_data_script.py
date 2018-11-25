@@ -1,5 +1,6 @@
 import pypyodbc
 import socket
+import time
 from datetime import datetime
 
 
@@ -39,37 +40,38 @@ if __name__ == "__main__":
            print("Stopping server.")
            break
 
-        # print('RECIEVED: ', data, '  at  ', datetime.now())
+        print('RECIEVED: ', data.decode("UTF-8"), '  at  ', datetime.now())
         connection = connect_database()
         cursor = connection.cursor()
 
-        # cursor.execute('''SELECT * FROM TBL_Eventos;''')
-        # cursor.commit()
-        #
-        # for d in cursor.description:
-        #     print(d[0])
-        #
-        # print('')
-        #
-        # for row in cursor.fetchall():
-        #     for field in row:
-        #         print(field)
-        #     print('')
-
-        # INSERIR EVENTO RECEBIDO
-
         event_type, id_room = (data.decode("UTF-8")).split(",")
-        timestamp = datetime.now()
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 
         add_event = "INSERT INTO TBL_Eventos" \
-                    " VALUES (%s, %s, %s)"
+                    " VALUES (%s, '%s', %s)" % (event_type, timestamp, id_room)
 
-        data_event = [(event_type, timestamp, id_room)]
-
-        cursor.execute(add_event, data_event)  # Insert new event
+        cursor.execute(add_event)  # Insert new event
 
         connection.commit()
+        print("Data added successfully.")
+        print()
         cursor.close()
         connection.close()
 
     server.close()
+
+    # # RETURN ALL EVENT TABLE ROWS
+    # connection = connect_database()
+    # cursor = connection.cursor()
+    #
+    # cursor.execute('SELECT * FROM TBL_Eventos')
+    # print('')
+    #
+    # for row in cursor.fetchall():
+    #     for field in row:
+    #         print(field)
+    #     print('')
+    #
+    # connection.commit()
+    # cursor.close()
+    # connection.close()
