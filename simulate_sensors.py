@@ -23,7 +23,7 @@ while True:  # making a loop
     except:
         break  # if user pressed a key other than the given key the loop will break
 
-    DELAY = randint(60,120)  # !DELAY! (supostamente é 1segundo +-)
+    DELAY = 1  # !DELAY! (supostamente é 1segundo +-)
 
     time.sleep(DELAY)
     fail = 4
