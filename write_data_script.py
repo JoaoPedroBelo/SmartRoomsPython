@@ -1,38 +1,49 @@
-import mysql.connector
-from mysql.connector import errorcode
+import pypyodbc
+import socket
 import time
 from datetime import datetime
 
 
-database_config = {
-    'user': 'smartrooms@smartrooms',
-    'password': 'SDgrupo3_projet',
-    'host': 'smartrooms.mariadb.database.azure.com',
-    'database': 'mydb',
-    'port': 3306,
-    'raise_on_warnings': True
-}
+connection_string = "Driver={SQL Server Native Client 11.0};" \
+                    "Server=smartroomsdbserver.database.windows.net;" \
+                    "Database=smartrooms_db;" \
+                    "uid=smartrooms;" \
+                    "pwd=SDgrupo3_projecto"
 
 
 def connect_database():
     try:
-        cnx = mysql.connector.connect(**database_config)
+        cnxn = pypyodbc.connect(connection_string)
         print("Database Connection Successfull")
-        return cnx
-    except mysql.connector.Error as err:
-        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            print("Something is wrong with your user name or password")
-        elif err.errno == errorcode.ER_BAD_DB_ERROR:
-            print("Database does not exist")
-        else:
-            print(err)
-
+        return cnxn
+    except pypyodbc.Error as ex:
+        sqlstate = ex.args[1]
+        print("ERROR_DATABASE_CONNECTION: ", sqlstate)
         return False
 
 
 if __name__ == "__main__":
-    print(connect_database())
-    #
+    server_address = ('localhost', 6789)
+    max_size = 4096
+
+    print('Starting the server at', datetime.now())
+
+    server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server.bind(server_address)
+
+    while True:  # making a loop
+        print('Waiting for sensors.')
+        data, client = server.recvfrom(max_size)
+
+        if data == b'stop':
+            print("Stopping server.")
+            break
+
+        print('At', datetime.now(), client, 'said', data)
+        server.sendto(b'Data recieved', client)
+
+    server.close()
+
 
     # cursor = cnx.cursor()
     #
