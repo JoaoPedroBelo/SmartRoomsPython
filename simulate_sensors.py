@@ -2,7 +2,6 @@ from datetime import datetime
 from random import randint
 import time
 import socket
-import keyboard
 
 
 server_address = ('localhost', 6789)
@@ -12,16 +11,6 @@ print('Starting the client at', datetime.now())
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 while True:  # making a loop
-    try:  # used try so that if user pressed other than the given key error will not be shown
-        if keyboard.is_pressed('q'):  # if key 'q' is pressed
-            print('Q key pressed.')
-            print('Stopping server.')
-            client.sendto(b'stop', server_address)
-            break  # finishing the loop
-        else:
-            pass
-    except:
-        break  # if user pressed a key other than the given key the loop will break
 
     DELAY = randint(60, 120)  # !DELAY! (supostamente é 1segundo +-)
 
