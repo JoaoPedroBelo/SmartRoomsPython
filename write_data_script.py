@@ -32,6 +32,7 @@ def connect_database():
 
 if __name__ == "__main__":
     print(connect_database())
+    #
 
     # cursor = cnx.cursor()
     #
