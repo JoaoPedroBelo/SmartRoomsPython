@@ -1,22 +1,17 @@
-import pypyodbc
+import pyodbc
 import socket
 import time
 from datetime import datetime
 
 
-connection_string = "Driver={SQL Server Native Client 11.0};" \
-                    "Server=smartroomsdbserver.database.windows.net;" \
-                    "Database=smartrooms_db;" \
-                    "uid=smartrooms;" \
-                    "pwd=SDgrupo3_projecto"
-
+connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=smartroomsdbserver.database.windows.net;;DATABASE=smartrooms_db;UID=smartrooms;PWD=SDgrupo3_projecto"
 
 def connect_database():
     try:
-        cnxn = pypyodbc.connect(connection_string)
+        cnxn = pyodbc.connect(connection_string)
         print("Database Connection Successfull")
         return cnxn
-    except pypyodbc.Error as ex:
+    except pyodbc.Error as ex:
         sqlstate = ex.args[1]
         print("ERROR_DATABASE_CONNECTION: ", sqlstate)
         return False
