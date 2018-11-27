@@ -6,6 +6,7 @@ from datetime import datetime
 
 connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=smartroomsdbserver.database.windows.net;;DATABASE=smartrooms_db;UID=smartrooms;PWD=SDgrupo3_projecto"
 
+
 def connect_database():
     try:
         cnxn = pyodbc.connect(connection_string)
