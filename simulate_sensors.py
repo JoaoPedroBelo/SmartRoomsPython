@@ -66,7 +66,7 @@ while True:  # making a loop
                         send_Data(SensorActivate, rooms)
             Sensor_Out = 0 #Sensor de fora ativa
 
-    DELAY = randint(1, 2)  # !DELAY! (supostamente é 1segundo +-)
+    DELAY = randint(60, 120)  # !DELAY! (supostamente é 1segundo +-)
     print("delay: ")
     print(DELAY)
     time.sleep(DELAY)
