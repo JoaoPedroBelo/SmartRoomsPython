@@ -4,6 +4,15 @@ import time
 import socket
 
 
+def send_Data(SensorActivate, rooms):
+    sensordata = (str(SensorActivate) + ',' + str(rooms))
+    print(sensordata)
+    print()
+    client.sendto(sensordata.encode(), server_address)
+    data, server = client.recvfrom(max_size)
+    print('SERVER RESPONSE: ', data.decode('UTF-8'), '  at  ', datetime.now())
+
+
 server_address = ('localhost', 6789)
 max_size = 4096
 
@@ -30,22 +39,12 @@ while True:  # making a loop
                 Sensor_In = 1 #Sensor de dentro activa
                 print("Sensor dentro activado")
                 print()
-                sensordata = (str(SensorActivate) + ',' + str(rooms))
-                print(sensordata)
-                print()
-                client.sendto(sensordata.encode(), server_address)
-                data, server = client.recvfrom(max_size)
-                print('SERVER RESPONSE: ', data.decode('UTF-8'), '  at  ', datetime.now())
+                send_Data(SensorActivate, rooms)
                 group = randint(1, chance)
                 if group == 1:
                     size = randint(1, Bsize)
                     for x in range(0, size):
-                        sensordata = (str(SensorActivate) + ',' + str(rooms))
-                        print(sensordata)
-                        print()
-                        client.sendto(sensordata.encode(), server_address)
-                        data, server = client.recvfrom(max_size)
-                        print('SERVER RESPONSE: ', data.decode('UTF-8'), '  at  ', datetime.now())
+                        send_Data(SensorActivate, rooms)
             Sensor_In = 0 #Sensor de dentro desativa
 
         elif SensorActivate == 1:  #!! Saida
@@ -59,26 +58,12 @@ while True:  # making a loop
                 print()
                 Sensor_In = 0 #Sensor de dentro desativa
                 Sensor_Out = 1 #Sensor de fora ativa
-                sensordata = (str(SensorActivate) + ',' + str(rooms))
-                print(sensordata)
-                print()
-                client.sendto(sensordata.encode(), server_address)
-                data, server = client.recvfrom(max_size)
-                print('SERVER RESPONSE: ', data.decode('UTF-8'), '  at  ', datetime.now())
-
+                send_Data(SensorActivate, rooms)
                 group = randint(1, chance)
-
                 if group == 1:
                     size = randint(1, Bsize)
                     for x in range(0, size):
-
-                        sensordata = (str(SensorActivate) + ',' + str(rooms))
-                        print(sensordata)
-                        print()
-                        client.sendto(sensordata.encode(), server_address)
-                        data, server = client.recvfrom(max_size)
-                        print('SERVER RESPONSE: ', data.decode('UTF-8'), '  at  ', datetime.now())
-
+                        send_Data(SensorActivate, rooms)
             Sensor_Out = 0 #Sensor de fora ativa
 
     DELAY = randint(1, 2)  # !DELAY! (supostamente é 1segundo +-)
@@ -88,3 +73,5 @@ while True:  # making a loop
 
 print("Stopping client.")
 client.close()
+
+
