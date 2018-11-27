@@ -24,7 +24,9 @@ while True:  # making a loop
     chance = 50  # chance de entrar ou sair um grupo de pessoas
     chanceSensorActivate = 1  # chance de uma pessoa passar no sensor
     Bsize = 5  # tamanho maximo do grupo
-    behavior = randint(0, chanceSensorActivate)  # 1 entrada 2 é saida
+
+
+    behavior = randint(0, chanceSensorActivate)  # 1 significa sensor ativado
 
     if behavior == 1:  # Uma pessoa no sensor
         SensorActivate = randint(0, 1)
