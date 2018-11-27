@@ -31,12 +31,12 @@ while True:  # making a loop
         if SensorActivate == 0:  #!! Entrada
             rooms = randint(0, fail)
             if rooms < 4:
-                Sensor_Out = 1 #Sensor de fora activa
+                #Sensor_Out = 1 #Sensor de fora activa
                 print()
-                print("Sensor fora activado")
+                print("Sensor fora ativado")
                 time.sleep(0.2)
-                Sensor_Out = 0 #Sensor de fora desativa
-                Sensor_In = 1 #Sensor de dentro activa
+                #Sensor_Out = 0 #Sensor de fora desativa
+                #Sensor_In = 1 #Sensor de dentro activa
                 print("Sensor dentro activado")
                 print()
                 send_Data(SensorActivate, rooms)
@@ -45,26 +45,26 @@ while True:  # making a loop
                     size = randint(1, Bsize)
                     for x in range(0, size):
                         send_Data(SensorActivate, rooms)
-            Sensor_In = 0 #Sensor de dentro desativa
+            #Sensor_In = 0 #Sensor de dentro desativa
 
         elif SensorActivate == 1:  #!! Saida
             rooms = randint(0, fail)
             if rooms < 4:
                 print()
-                print("Sensor dentro activado")
-                Sensor_In = 1 #Sensor de dentro ativa
+                print("Sensor dentro ativado")
+                #Sensor_In = 1 #Sensor de dentro ativa
                 time.sleep(0.2)
-                print("Sensor fora activado")
+                print("Sensor fora ativado")
                 print()
-                Sensor_In = 0 #Sensor de dentro desativa
-                Sensor_Out = 1 #Sensor de fora ativa
+                #Sensor_In = 0 #Sensor de dentro desativa
+                #Sensor_Out = 1 #Sensor de fora ativa
                 send_Data(SensorActivate, rooms)
                 group = randint(1, chance)
                 if group == 1:
                     size = randint(1, Bsize)
                     for x in range(0, size):
                         send_Data(SensorActivate, rooms)
-            Sensor_Out = 0 #Sensor de fora ativa
+            #Sensor_Out = 0 #Sensor de fora ativa
 
     DELAY = randint(60, 120)  # !DELAY! (supostamente é 1segundo +-)
     print("delay: ")
