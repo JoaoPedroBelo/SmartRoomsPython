@@ -13,20 +13,30 @@ def send_Data(SensorActivate, rooms):
     print('SERVER RESPONSE: ', data.decode('UTF-8'), '  at  ', datetime.now())
 
 
+def generate_persons(night, day):
+    now = datetime.now()
+    if now.hour and now.hour:
+        return 2   # chance de uma pessoa passar no sensor 50%
+    else:
+        return 10  # chance de uma pessoa passar no sensor 10%
+
+
 server_address = ('localhost', 6789)
 max_size = 4096
 
 print('Starting the client at', datetime.now())
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+
+
+
 while True:  # making a loop
     fail = 5     #probablidade de falhar
     chance = 50  # chance de entrar ou sair um grupo de pessoas
-    chanceSensorActivate = 1  # chance de uma pessoa passar no sensor
     Bsize = 5  # tamanho maximo do grupo
-
-
-    behavior = randint(0, chanceSensorActivate)  # 1 significa sensor ativado
+    night=21   #hora que começa a noite
+    day=8      #hora que começa o dia
+    behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
 
     if behavior == 1:  # Uma pessoa no sensor
         SensorActivate = randint(0, 1)
