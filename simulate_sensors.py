@@ -15,8 +15,9 @@ def send_Data(SensorActivate, rooms):
 
 def generate_persons(night, day):
     now = datetime.now()
-    if now.hour and now.hour:
+    if now.hour<21 and now.hour>8:
         return 2   # chance de uma pessoa passar no sensor 50%
+
     else:
         return 10  # chance de uma pessoa passar no sensor 10%
 
@@ -78,7 +79,7 @@ while True:  # making a loop
                         send_Data(SensorActivate, rooms)
             #Sensor_Out = 0 #Sensor de fora ativa
 
-    DELAY = randint(60, 120)  # !DELAY! (supostamente é 1segundo +-)
+    DELAY = randint(1, 2)  # !DELAY! (supostamente é 1segundo +-)
     print("delay: ")
     print(DELAY)
     time.sleep(DELAY)
