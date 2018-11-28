@@ -15,9 +15,8 @@ def send_Data(SensorActivate, rooms):
 
 def generate_persons(night, day):
     now = datetime.now()
-    if now.hour<21 and now.hour>8:
+    if now.hour < 21 and now.hour > 7:
         return 2   # chance de uma pessoa passar no sensor 50%
-
     else:
         return 10  # chance de uma pessoa passar no sensor 10%
 
