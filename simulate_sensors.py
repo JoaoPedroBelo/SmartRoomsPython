@@ -23,13 +23,13 @@ def generate_persons(par_night, par_day):
 def generate_in_out():
     now = datetime.now()
     if 8 <= now.hour <= 10:
-        in_out = randint(1, 10)
+        in_out = randint(1, 5)
         if in_out != 1:
             return 0  # Entrada
         else:
             return 1  # Saida
     elif 18 <= now.hour <= 19:
-        in_out = randint(1, 10)
+        in_out = randint(1, 5)
         if in_out != 1:
             return 1  # Entrada
         else:
