@@ -17,23 +17,42 @@ def connect_database():
         return False
 
 
-def write_to_file(data_decoded, timestamp):
+def write_to_file(par_data_decoded, par_timestamp):
     print("Writing data to file because connection failed.")
 
-    fName = "connection_failed_backlog.txt"
-    if os.path.exists(fName):
-        with open(fName, 'a') as f:
+    fname = "connection_failed_backlog.txt"
+    if os.path.exists(fname):
+        with open(fname, 'a') as f:
             try:
-                f.write(data_decoded + "," + timestamp + '\n')
+                f.write(par_data_decoded + ";" + par_timestamp + '\n')
                 f.close()
-            except:
-                print("Error writting to file.")
+            except Exception as e:
+                print("ERROR WRITTING FILE: " + str(e))
+                return
     else:
-        f = open(fName, 'a')
-        f.write(data_decoded + "," + timestamp + '\n')
+        f = open(fname, 'a')
+        f.write(par_data_decoded + ";" + par_timestamp + '\n')
         f.close()
 
     print("Data logged in file connection_failed_backlog.txt")
+
+
+def insert_event_into_database(par_connection, par_event_type, par_timestamp, par_id_room):
+    add_event = "INSERT INTO TBL_Eventos" \
+                " VALUES (%s, '%s', %s)" % (par_event_type, par_timestamp, par_id_room)
+
+    try:
+        cursor = par_connection.cursor()
+        cursor.execute(add_event)  # Insert new event
+        par_connection.commit()
+    except Exception as e:
+        print("ERROR INSERTING INTO DB: " + str(e))
+        write_to_file(par_event_type + ',' + id_room, par_timestamp)
+        return
+
+    print("Data added successfully." + '\n')
+    cursor.close()
+    par_connection.close()
 
 
 if __name__ == "__main__":
@@ -51,30 +70,22 @@ if __name__ == "__main__":
         server.sendto(b'Data recieved', client)
 
         if data == b'stop':
-           print("Stopping server.")
-           break
+            print("Stopping server.")
+            break
 
         data_decoded = data.decode("UTF-8")
         event_type, id_room = (data_decoded.split(","))
         timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 
-        print('\nRECIEVED: ', data.decode("UTF-8"), '  at  ', datetime.now())
+        print('\nRECIEVED: ', data_decoded, '  at  ', datetime.now())
+
         connection = connect_database()
 
-        if connection == False:
+        if connection is False:
             write_to_file(data_decoded, timestamp)
         else:
-            cursor = connection.cursor()
 
-            add_event = "INSERT INTO TBL_Eventos" \
-                        " VALUES (%s, '%s', %s)" % (event_type, timestamp, id_room)
+            insert_event_into_database(connection, event_type, timestamp, id_room)
 
-            cursor.execute(add_event)  # Insert new event
-
-            connection.commit()
-            print("Data added successfully.")
-            print()
-            cursor.close()
-            connection.close()
 
     server.close()
