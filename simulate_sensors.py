@@ -14,10 +14,22 @@ def send_data(par_sensoractivate, par_rooms):
 
 def generate_persons(par_night, par_day):
     now = datetime.now()
-    if par_day <= now.hour <= par_night:
-        return 2   # chance de uma pessoa passar no sensor 50%
+    if not verify_weekend():
+        if par_day <= now.hour <= par_night:
+            return 2   # chance de uma pessoa passar no sensor 50%
+        else:
+            return 10  # chance de uma pessoa passar no sensor 10%
     else:
+        print("fim de semana")
         return 10  # chance de uma pessoa passar no sensor 10%
+
+
+def verify_weekend():
+
+    if datetime.today().weekday() == 5 or datetime.today().weekday() == 6:
+        return True
+    else:
+        return False
 
 
 def generate_in_out():
@@ -44,7 +56,6 @@ max_size = 4096
 
 print('Starting the client at', datetime.now())
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
 
 while True:  # making a loop
     fail = 5     # probablidade de falhar
@@ -93,6 +104,7 @@ while True:  # making a loop
             # Sensor_Out = 0 # Sensor de fora ativa
 
     DELAY = randint(60, 120)  # !DELAY! (supostamente é 1segundo +-)
+    verify_weekend()
     print("delay: ")
     print(DELAY)
     time.sleep(DELAY)
