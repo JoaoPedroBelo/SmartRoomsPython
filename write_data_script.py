@@ -38,21 +38,17 @@ def write_to_file(par_data_decoded, par_timestamp):
     return True
 
 
-def insert_event_into_database(par_connection, par_event_type, par_timestamp, par_id_room):
+def insert_event_into_database(par_connection, par_cursor, par_event_type, par_timestamp, par_id_room):
     add_event = "INSERT INTO TBL_Eventos" \
                 " VALUES (%s, '%s', %s)" % (par_event_type, par_timestamp, par_id_room)
 
-    cursor = par_connection.cursor()
-    cursor.execute("SELECT SUM(tipo) FROM TBL_Eventos WHERE TBL_Salas_id = " + str(par_id_room))
-
-    for row in cursor.fetchall():
-        room_ocupation = row[0]
+    room_ocupation = check_room_occupation(par_cursor, par_id_room)
 
     if room_ocupation > 0 or par_event_type == 1:  # if room is empty doesnt insert an exited room event
         try:
-            cursor.execute(add_event)  # Insert new event if room isnt empty
+            par_cursor.execute(add_event)  # Insert new event if room isnt empty
             par_connection.commit()
-        except Exception as e:
+        except pyodbc.Error as e:
             print("ERROR INSERTING INTO DB: " + str(e))
             write_to_file(par_event_type + ',' + par_id_room, par_timestamp)
             return False
@@ -61,12 +57,42 @@ def insert_event_into_database(par_connection, par_event_type, par_timestamp, pa
         return False
 
     print("Data added successfully." + '\n')
-    cursor.close()
-    par_connection.close()
     return True
 
 
-def retry_inserting_backlog():
+def check_room_occupation(par_cursor, par_id_room):
+    # check room occupation in DB
+    try:
+        par_cursor.execute("SELECT SUM(tipo) FROM TBL_Eventos WHERE TBL_Salas_id = " + str(par_id_room))
+    except pyodbc.Error as e:
+        print("ERROR GETTING ROOM OCCUPATION: " + str(e))
+
+    for row in cursor.fetchall():
+        room_ocupation = row[0]
+
+    # check room occupation in backlog
+    fname = "connection_failed_backlog.txt"
+    content = []
+    if os.path.exists(fname):  # reads entire file and saves it in content
+        with open(fname) as f:
+            try:
+                content = f.readlines()
+                content = [x.strip() for x in content]
+                f.close()
+            except Exception as e:
+                print("ERROR READING FILE: " + str(e))
+                return
+
+    for line in content:
+        s_event_type , s_id_room, s_timestamp = line.split(',')
+
+        if int(s_id_room) == par_id_room:
+            room_ocupation += int(s_event_type)
+
+    return room_ocupation
+
+
+def retry_inserting_backlog(par_connection, par_cursor):
     fname = "connection_failed_backlog.txt"
     content = []
     if os.path.exists(fname):  # reads entire file and saves it in content
@@ -83,12 +109,8 @@ def retry_inserting_backlog():
         try:
             while content:
                 line = content[0]
-                event_type, id_room, timestamp = line.split(',')
-                connection = connect_database()
-                if connection is False:
-                    break
-                else:
-                    result = insert_event_into_database(connection, int(event_type), timestamp, id_room)
+                s_event_type, s_id_room, s_timestamp = line.split(',')
+                result = insert_event_into_database(par_connection, par_cursor, int(s_event_type), s_timestamp, s_id_room)
 
                 if result:
                     content.pop(0)
@@ -98,45 +120,43 @@ def retry_inserting_backlog():
             for line in content:
                 f.write(line + '\n')
 
-            return False
-
-        while content:
-            line = content.pop(0)
-            f.write(line + '\n')
-
         f.close()
 
 
 if __name__ == "__main__":
-    retry_inserting_backlog()
-    # server_address = ('localhost', 6789)
-    # max_size = 4096
-    #
-    # print('Starting the server at', datetime.now())
-    #
-    # server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    # server.bind(server_address)
-    #
-    # while True:  # making a loop
-    #     print('Waiting for sensors.')
-    #     data, client = server.recvfrom(max_size)
-    #     server.sendto(b'Data recieved', client)
-    #
-    #     if data == b'stop':
-    #         print("Stopping server.")
-    #         break
-    #
-    #     data_decoded = data.decode("UTF-8")
-    #     event_type, id_room = (data_decoded.split(","))
-    #     timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-    #
-    #     print('\nRECIEVED: ', data_decoded, '  at  ', datetime.now())
-    #
-    #     connection = connect_database()
-    #
-    #     if connection is False:
-    #         write_to_file(data_decoded, timestamp)
-    #     else:
-    #         insert_event_into_database(connection, event_type, timestamp, id_room)
-    #
+    server_address = ('localhost', 6789)
+    max_size = 4096
+
+    print('Starting the server at', datetime.now())
+
+    server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server.bind(server_address)
+
+    while True:  # making a loop
+        print('Waiting for sensors.')
+        data, client = server.recvfrom(max_size)
+        server.sendto(b'Data recieved', client)
+
+        data_decoded = data.decode("UTF-8")
+        event_type, id_room = (data_decoded.split(","))
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+
+        print('\nRECIEVED: ', data_decoded, '  at  ', datetime.now())
+
+        connection = connect_database()
+
+        if connection is False:
+            write_to_file(data_decoded, timestamp)
+        else:
+            cursor = connection.cursor()
+
+            print('\n\nTrying to inster the backlog into the DB:\n')
+            retry_inserting_backlog(connection, cursor)
+            print('Backlog done.\n\n')
+
+            insert_event_into_database(connection, cursor, event_type, timestamp, id_room)
+
+        cursor.close()
+        connection.close()
+
     # server.close()
