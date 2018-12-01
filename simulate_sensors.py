@@ -87,7 +87,6 @@ while True:  # making a loop
         elif SensorActivate == 1:  # !! Saida
             rooms = randint(0, fail)
             if rooms < 4:
-
                 print('\n'+"Sensor dentro ativado")
                 # Sensor_In = 1 # Sensor de dentro ativa
                 time.sleep(0.2)
