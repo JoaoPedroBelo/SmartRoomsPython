@@ -66,12 +66,12 @@ while True:  # making a loop
                 # Sensor_Out = 0 # Sensor de fora desativa
                 # Sensor_In = 1 # Sensor de dentro activa
                 print("Sensor dentro activado"+'\n')
-                send_data(SensorActivate, rooms)
+                send_data(1, rooms)
                 group = randint(1, chance)
                 if group == 1:
                     size = randint(1, Bsize)
                     for x in range(0, size):
-                        send_data(SensorActivate, rooms)
+                        send_data(1, rooms)
             # Sensor_In = 0 # Sensor de dentro desativa
 
         elif SensorActivate == 1:  # !! Saida
@@ -84,12 +84,12 @@ while True:  # making a loop
                 print("Sensor fora ativado"+'\n')
                 # Sensor_In = 0 # Sensor de dentro desativa
                 # Sensor_Out = 1 # Sensor de fora ativa
-                send_data(SensorActivate, rooms)
+                send_data(-1, rooms)
                 group = randint(1, chance)
                 if group == 1:
                     size = randint(1, Bsize)
                     for x in range(0, size):
-                        send_data(SensorActivate, rooms)
+                        send_data(-1, rooms)
             # Sensor_Out = 0 # Sensor de fora ativa
 
     DELAY = randint(60, 120)  # !DELAY! (supostamente é 1segundo +-)
