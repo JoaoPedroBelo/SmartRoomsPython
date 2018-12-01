@@ -20,7 +20,6 @@ def generate_persons(par_night, par_day):
         else:
             return 10  # chance de uma pessoa passar no sensor 10%
     else:
-        print("fim de semana")
         return 10  # chance de uma pessoa passar no sensor 10%
 
 
