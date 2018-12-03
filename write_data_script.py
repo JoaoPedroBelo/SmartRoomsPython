@@ -84,7 +84,7 @@ def check_room_occupation(par_cursor, par_id_room):
                 return
 
     for line in content:
-        s_event_type , s_id_room, s_timestamp = line.split(',')
+        s_event_type, s_id_room, s_timestamp = line.split(',')
 
         if int(s_id_room) == par_id_room:
             room_ocupation += int(s_event_type)
@@ -151,10 +151,9 @@ if __name__ == "__main__":
         else:
             cursor = connection.cursor()
 
-
             retry_inserting_backlog(connection, cursor)
 
-            insert_event_into_database(connection, cursor, event_type, timestamp, id_room)
+            insert_event_into_database(connection, cursor, event_type, timestamp, int(id_room))
 
         cursor.close()
         connection.close()
