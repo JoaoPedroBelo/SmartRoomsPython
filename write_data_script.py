@@ -9,6 +9,7 @@ from constants import values
 # alterar todos os prints para logging.info
 # adicionar no inicio logging.basicConfig(filename='write_data_script.log',level=logging.DEBUG)
 
+
 def connect_database():
     try:
         cnxn = pyodbc.connect(values.connection_string)
