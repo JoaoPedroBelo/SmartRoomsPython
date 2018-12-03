@@ -2,6 +2,10 @@ from datetime import datetime
 from random import randint
 import time
 import socket
+# para o raspberry
+# import logging
+# alterar todos os prints para logging.info
+# adicionar no inicio logging.basicConfig(filename='write_data_script.log',level=logging.DEBUG)
 
 
 def send_data(par_sensoractivate, par_rooms):
