@@ -46,9 +46,9 @@ def generate_in_out():
     elif 18 <= now.hour <= 19:
         in_out = randint(1, 5)
         if in_out != 1:
-            return 1  # Entrada
+            return 1  # Saida
         else:
-            return 0   # Saida
+            return 0   # Entrada
     else:
         in_out = randint(0, 1)
         return in_out
