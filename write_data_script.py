@@ -108,6 +108,7 @@ def retry_inserting_backlog(par_connection, par_cursor):
     with open(fname, 'w') as f:
         try:
             while content:
+                print('\n\nTrying to insert the backlog into the DB:\n')
                 line = content[0]
                 s_event_type, s_id_room, s_timestamp = line.split(',')
                 result = insert_event_into_database(par_connection, par_cursor, int(s_event_type), s_timestamp, s_id_room)
@@ -150,9 +151,8 @@ if __name__ == "__main__":
         else:
             cursor = connection.cursor()
 
-            print('\n\nTrying to inster the backlog into the DB:\n')
+
             retry_inserting_backlog(connection, cursor)
-            print('Backlog done.\n\n')
 
             insert_event_into_database(connection, cursor, event_type, timestamp, id_room)
 
