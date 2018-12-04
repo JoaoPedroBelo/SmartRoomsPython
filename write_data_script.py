@@ -4,6 +4,10 @@ import time
 import os
 from datetime import datetime
 from constants import values
+# para o raspberry
+# import logging
+# alterar todos os prints para logging.info
+# adicionar no inicio logging.basicConfig(filename='write_data_script.log',level=logging.DEBUG)
 
 
 def connect_database():
@@ -53,7 +57,7 @@ def insert_event_into_database(par_connection, par_cursor, par_event_type, par_t
             write_to_file(par_event_type + ',' + par_id_room, par_timestamp)
             return False
     else:
-        print("ERROR INSERTING EVENT: Room " + par_id_room + " is empty" + '\n')
+        print("ERROR INSERTING EVENT: Room " + str(par_id_room) + " is empty" + '\n')
         return False
 
     print("Data added successfully." + '\n')
@@ -84,7 +88,7 @@ def check_room_occupation(par_cursor, par_id_room):
                 return
 
     for line in content:
-        s_event_type , s_id_room, s_timestamp = line.split(',')
+        s_event_type, s_id_room, s_timestamp = line.split(',')
 
         if int(s_id_room) == par_id_room:
             room_ocupation += int(s_event_type)
@@ -108,9 +112,11 @@ def retry_inserting_backlog(par_connection, par_cursor):
     with open(fname, 'w') as f:
         try:
             while content:
+                print('\n\nTrying to insert the backlog into the DB:\n')
                 line = content[0]
                 s_event_type, s_id_room, s_timestamp = line.split(',')
-                result = insert_event_into_database(par_connection, par_cursor, int(s_event_type), s_timestamp, s_id_room)
+                result = insert_event_into_database(par_connection, par_cursor, int(s_event_type), s_timestamp,
+                                                    s_id_room)
 
                 if result:
                     content.pop(0)
@@ -150,11 +156,9 @@ if __name__ == "__main__":
         else:
             cursor = connection.cursor()
 
-            print('\n\nTrying to inster the backlog into the DB:\n')
             retry_inserting_backlog(connection, cursor)
-            print('Backlog done.\n\n')
 
-            insert_event_into_database(connection, cursor, event_type, timestamp, id_room)
+            insert_event_into_database(connection, cursor, int(event_type), timestamp, id_room)
 
         cursor.close()
         connection.close()

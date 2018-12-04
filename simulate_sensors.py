@@ -2,6 +2,10 @@ from datetime import datetime
 from random import randint
 import time
 import socket
+# para o raspberry
+# import logging
+# alterar todos os prints para logging.info
+# adicionar no inicio logging.basicConfig(filename='write_data_script.log',level=logging.DEBUG)
 
 
 def send_data(par_sensoractivate, par_rooms):
@@ -42,9 +46,9 @@ def generate_in_out():
     elif 18 <= now.hour <= 19:
         in_out = randint(1, 5)
         if in_out != 1:
-            return 1  # Entrada
+            return 1  # Saida
         else:
-            return 0   # Saida
+            return 0   # Entrada
     else:
         in_out = randint(0, 1)
         return in_out
@@ -57,7 +61,7 @@ print('Starting the client at', datetime.now())
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 while True:  # making a loop
-    fail = 5     # probablidade de falhar
+    fail = 3     # probablidade de falhar
     chance = 50  # chance de entrar ou sair um grupo de pessoas
     Bsize = 5  # tamanho maximo do grupo
     night = 21   # hora que começa a noite
