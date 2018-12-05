@@ -85,6 +85,9 @@ while True:  # making a loop
                 if group == 1:
                     size = randint(1, Bsize)
                     for x in range(0, size):
+                        rint('\n' + "Sensor fora ativado")
+                        time.sleep(0.2)
+                        print("Sensor dentro activado" + '\n')
                         send_data(1, rooms)
             # Sensor_In = 0 # Sensor de dentro desativa
 
@@ -102,6 +105,9 @@ while True:  # making a loop
                 if group == 1:
                     size = randint(1, Bsize)
                     for x in range(0, size):
+                        print('\n' + "Sensor dentro ativado")
+                        time.sleep(0.2)
+                        print("Sensor fora ativado" + '\n')
                         send_data(-1, rooms)
             # Sensor_Out = 0 # Sensor de fora ativa
 
