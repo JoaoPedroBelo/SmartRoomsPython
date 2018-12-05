@@ -37,7 +37,7 @@ def verify_weekend():
 
 def generate_in_out():
     now = datetime.now()
-    if 7 <= now.hour <= 10:
+    if 7 <= now.hour <= 10: #time
         in_out = randint(1, 10)
         if in_out != 1:
             return 0  # Entrada
