@@ -43,8 +43,8 @@ def write_to_file(par_data_decoded, par_timestamp):
 
 
 def insert_event_into_database(par_connection, par_cursor, par_event_type, par_timestamp, par_id_room):
-    add_event = "INSERT INTO TBL_Eventos" \
-                " VALUES (%s, '%s', %s)" % (par_event_type, par_timestamp, par_id_room)
+    add_event = "INSERT INTO TBL_Eventos (tipo, time, TBL_Salas_id, occupied_seats, empty_seats)" \
+                " VALUES (%s, '%s', %s, null, null)" % (par_event_type, par_timestamp, par_id_room)
 
     room_ocupation = check_room_occupation(par_cursor, par_id_room)
 
