@@ -11,7 +11,8 @@ def send_data(par_sensoractivate, par_rooms):
     functions.message(str(datetime.now()) + ': ' + sensordata+'\n')
     client.sendto(sensordata.encode(), server_address)
     data, server = client.recvfrom(max_size)
-    functions.message(str(datetime.now()) + ': ' + 'SERVER RESPONSE: '+ str(data.decode('UTF-8'))+ '  at  '+ str(datetime.now()))
+    functions.message(str(datetime.now()) + ': ' + 'SERVER RESPONSE: ' + str(data.decode('UTF-8')) + '  at  ' +
+                      str(datetime.now()))
 
 
 def generate_persons(par_night, par_day):
