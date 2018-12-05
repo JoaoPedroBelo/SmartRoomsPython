@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 
 def message(text):
@@ -11,5 +12,5 @@ def start_logging(filename):
 # raspberry: nao faz print guarda mensagens em ficheiros log
 # def message(text):
 #     logging.info(text)
-# def start(filename):
+# def start_logging(filename):
 #     logging.basicConfig(filename=filename, level=logging.DEBUG)
