@@ -2,18 +2,16 @@ from datetime import datetime
 from random import randint
 import time
 import socket
-# para o raspberry
-# import logging
-# alterar todos os prints para logging.info
-# adicionar no inicio logging.basicConfig(filename='write_data_script.log',level=logging.DEBUG)
+from constants import functions
+import logging
 
 
 def send_data(par_sensoractivate, par_rooms):
     sensordata = (str(par_sensoractivate) + ',' + str(par_rooms))
-    print(sensordata+'\n')
+    functions.message(str(datetime.now()) + ': ' + sensordata+'\n')
     client.sendto(sensordata.encode(), server_address)
     data, server = client.recvfrom(max_size)
-    print('SERVER RESPONSE: ', data.decode('UTF-8'), '  at  ', datetime.now())
+    functions.message(str(datetime.now()) + ': ' + 'SERVER RESPONSE: '+ str(data.decode('UTF-8'))+ '  at  '+ str(datetime.now()))
 
 
 def generate_persons(par_night, par_day):
@@ -37,7 +35,7 @@ def verify_weekend():
 
 def generate_in_out():
     now = datetime.now()
-    if 7 <= now.hour <= 10: #time
+    if 7 <= now.hour <= 11:
         in_out = randint(1, 10)
         if in_out != 1:
             return 0  # Entrada
@@ -46,18 +44,20 @@ def generate_in_out():
     elif 17 <= now.hour <= 19:
         in_out = randint(1, 10)
         if in_out != 1:
-            return 1  # Saida
+            return 1  # Entrada
         else:
-            return 0   # Entrada
+            return 0   # Saida
     else:
         in_out = randint(0, 1)
         return in_out
 
 
+functions.start_logging('/home/pi/projeto/simulate_sensors.log')
+
 server_address = ('localhost', 6789)
 max_size = 4096
 
-print('Starting the client at', datetime.now())
+functions.message(str(datetime.now()) + ': ' + 'Starting the client.')
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 while True:  # making a loop
@@ -75,11 +75,11 @@ while True:  # making a loop
             if rooms < 4:
                 # Sensor_Out = 1 # Sensor de fora activa
 
-                print('\n'+"Sensor fora ativado")
+                functions.message(str(datetime.now()) + ': ' + "Sensor fora ativado"+'\n')
                 time.sleep(0.2)
                 # Sensor_Out = 0 # Sensor de fora desativa
                 # Sensor_In = 1 # Sensor de dentro activa
-                print("Sensor dentro activado"+'\n')
+                functions.message(str(datetime.now()) + ': ' + "Sensor dentro activado"+'\n')
                 send_data(1, rooms)
                 group = randint(1, chance)
                 if group == 1:
@@ -94,10 +94,10 @@ while True:  # making a loop
         elif SensorActivate == 1:  # !! Saida
             rooms = randint(0, fail)
             if rooms < 4:
-                print('\n'+"Sensor dentro ativado")
+                functions.message(str(datetime.now()) + ': ' + "Sensor dentro ativado"+'\n')
                 # Sensor_In = 1 # Sensor de dentro ativa
                 time.sleep(0.2)
-                print("Sensor fora ativado"+'\n')
+                functions.message(str(datetime.now()) + ': ' + "Sensor fora ativado"+'\n')
                 # Sensor_In = 0 # Sensor de dentro desativa
                 # Sensor_Out = 1 # Sensor de fora ativa
                 send_data(-1, rooms)
@@ -113,11 +113,9 @@ while True:  # making a loop
 
     DELAY = randint(60, 120)  # !DELAY! (supostamente é 1segundo +-)
     verify_weekend()
-    print("delay: ")
-    print(DELAY)
+    functions.message(str(datetime.now()) + ': ' + "delay: ")
+    functions.message(str(datetime.now()) + ': ' + str(DELAY))
     time.sleep(DELAY)
 
-print("Stopping client.")
+functions.message(str(datetime.now()) + ': ' + "Stopping client.")
 client.close()
-
-
