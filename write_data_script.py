@@ -127,42 +127,38 @@ def retry_inserting_backlog(par_connection, par_cursor):
 
 
 if __name__ == "__main__":
-    connection = connect_database()
-    cursor = connection.cursor()
-    retry_inserting_backlog(connection, cursor)
+    server_address = ('localhost', 6789)
+    max_size = 4096
 
-    # server_address = ('localhost', 6789)
-    # max_size = 4096
-    #
-    # functions.start_logging('/home/pi/projeto/write_data_script.log')
-    # functions.message(str(datetime.now()) + ': ' + 'Starting the server.')
-    #
-    # server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    # server.bind(server_address)
-    #
-    # while True:  # making a loop
-    #     functions.message(str(datetime.now()) + ': ' + 'Waiting for sensors.')
-    #     data, client = server.recvfrom(max_size)
-    #     server.sendto(b'Data recieved', client)
-    #
-    #     data_decoded = data.decode("UTF-8")
-    #     event_type, id_room = (data_decoded.split(","))
-    #     timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-    #
-    #     functions.message(str(datetime.now()) + ': ' + '\nRECIEVED: ' + data_decoded)
-    #
-    #     connection = connect_database()
-    #
-    #     if connection is False:
-    #         write_to_file(data_decoded, timestamp)
-    #     else:
-    #         cursor = connection.cursor()
-    #
-    #         retry_inserting_backlog(connection, cursor)
-    #
-    #         insert_event_into_database(connection, cursor, int(event_type), timestamp, id_room)
-    #
-    #     cursor.close()
-    #     connection.close()
-    #
-    # # server.close()
+    functions.start_logging('/home/pi/projeto/write_data_script.log')
+    functions.message(str(datetime.now()) + ': ' + 'Starting the server.')
+
+    server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server.bind(server_address)
+
+    while True:  # making a loop
+        functions.message(str(datetime.now()) + ': ' + 'Waiting for sensors.')
+        data, client = server.recvfrom(max_size)
+        server.sendto(b'Data recieved', client)
+
+        data_decoded = data.decode("UTF-8")
+        event_type, id_room = (data_decoded.split(","))
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+
+        functions.message(str(datetime.now()) + ': ' + '\nRECIEVED: ' + data_decoded)
+
+        connection = connect_database()
+
+        if connection is False:
+            write_to_file(data_decoded, timestamp)
+        else:
+            cursor = connection.cursor()
+
+            retry_inserting_backlog(connection, cursor)
+
+            insert_event_into_database(connection, cursor, int(event_type), timestamp, id_room)
+
+        cursor.close()
+        connection.close()
+
+    # server.close()
