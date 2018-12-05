@@ -107,62 +107,62 @@ def retry_inserting_backlog(par_connection, par_cursor):
                 functions.message(str(datetime.now()) + ': ' + "ERROR READING FILE: " + str(e))
                 return
 
+    while content:
+        functions.message(str(datetime.now()) + ': ' + '\n\nTrying to insert the backlog into the DB:\n')
+        line = content[0]
+        s_event_type, s_id_room, s_timestamp = line.split(',')
+        result = insert_event_into_database(par_connection, par_cursor, int(s_event_type), s_timestamp,
+                                            s_id_room)
+
+        if result:
+            content.pop(0)
+        else:
+            break
+
     with open(fname, 'w') as f:
-        try:
-            while content:
-                functions.message(str(datetime.now()) + ': ' + '\n\nTrying to insert the backlog into the DB:\n')
-                line = content[0]
-                s_event_type, s_id_room, s_timestamp = line.split(',')
-                result = insert_event_into_database(par_connection, par_cursor, int(s_event_type), s_timestamp,
-                                                    s_id_room)
-
-                if result:
-                    content.pop(0)
-
-                else:
-                    break
-
-        except Exception as e:
-            functions.message(str(datetime.now()) + ': ' + "ERROR in retry_inserting_backlog: " + str(e) + '\n')
-            for line in content:
-                f.write(line + '\n')
+        for line in content:
+            f.write(line + '\n')
 
         f.close()
 
 
 if __name__ == "__main__":
-    server_address = ('localhost', 6789)
-    max_size = 4096
+    connection = connect_database()
+    cursor = connection.cursor()
+    retry_inserting_backlog(connection, cursor)
 
-    functions.start_logging('/home/pi/projeto/write_data_script.log')
-    functions.message(str(datetime.now()) + ': ' + 'Starting the server.')
-
-    server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server.bind(server_address)
-
-    while True:  # making a loop
-        functions.message(str(datetime.now()) + ': ' + 'Waiting for sensors.')
-        data, client = server.recvfrom(max_size)
-        server.sendto(b'Data recieved', client)
-
-        data_decoded = data.decode("UTF-8")
-        event_type, id_room = (data_decoded.split(","))
-        timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-
-        functions.message(str(datetime.now()) + ': ' + '\nRECIEVED: ' + data_decoded)
-
-        connection = connect_database()
-
-        if connection is False:
-            write_to_file(data_decoded, timestamp)
-        else:
-            cursor = connection.cursor()
-
-            retry_inserting_backlog(connection, cursor)
-
-            insert_event_into_database(connection, cursor, int(event_type), timestamp, id_room)
-
-        cursor.close()
-        connection.close()
-
-    # server.close()
+    # server_address = ('localhost', 6789)
+    # max_size = 4096
+    #
+    # functions.start_logging('/home/pi/projeto/write_data_script.log')
+    # functions.message(str(datetime.now()) + ': ' + 'Starting the server.')
+    #
+    # server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # server.bind(server_address)
+    #
+    # while True:  # making a loop
+    #     functions.message(str(datetime.now()) + ': ' + 'Waiting for sensors.')
+    #     data, client = server.recvfrom(max_size)
+    #     server.sendto(b'Data recieved', client)
+    #
+    #     data_decoded = data.decode("UTF-8")
+    #     event_type, id_room = (data_decoded.split(","))
+    #     timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+    #
+    #     functions.message(str(datetime.now()) + ': ' + '\nRECIEVED: ' + data_decoded)
+    #
+    #     connection = connect_database()
+    #
+    #     if connection is False:
+    #         write_to_file(data_decoded, timestamp)
+    #     else:
+    #         cursor = connection.cursor()
+    #
+    #         retry_inserting_backlog(connection, cursor)
+    #
+    #         insert_event_into_database(connection, cursor, int(event_type), timestamp, id_room)
+    #
+    #     cursor.close()
+    #     connection.close()
+    #
+    # # server.close()
