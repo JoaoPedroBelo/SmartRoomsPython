@@ -54,7 +54,7 @@ def insert_event_into_database(par_connection, par_cursor, par_event_type, par_t
             par_connection.commit()
         except pyodbc.Error as e:
             print("ERROR INSERTING INTO DB: " + str(e))
-            write_to_file(par_event_type + ',' + par_id_room, par_timestamp)
+            write_to_file(str(par_event_type) + ',' + str(par_id_room), par_timestamp)
             return False
     else:
         print("ERROR INSERTING EVENT: Room " + str(par_id_room) + " is empty" + '\n')
