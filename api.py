@@ -2,11 +2,13 @@ import flask
 from flask import request, jsonify
 import pyodbc
 from constants import values
+from flask_cors import CORS
 
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 app.config['JSON_SORT_KEYS'] = False
+CORS(app)
 
 
 @app.route('/', methods=['GET'])
@@ -64,11 +66,14 @@ def api_all_rooms_occupation():
 
     query = ''
     for i in range(4):
-        query += 'SELECT TBL_Salas_id as Room_id, occupied_seats, empty_seats FROM (SELECT TOP 1 TBL_Salas_id, occupied_seats, empty_seats, time' \
-                 ' FROM TBL_Eventos WHERE TBL_Salas_id = %s ORDER BY time DESC) as query%s ' % (i, i)
+        query += 'SELECT nome_sala, occupied_seats, empty_seats ' \
+                 'FROM (SELECT TOP 1 TBL_Salas.nome_sala, TBL_Salas_id, occupied_seats, empty_seats, time ' \
+                 'FROM TBL_Eventos, TBL_Salas ' \
+                 'WHERE TBL_Salas.id = TBL_Eventos.TBL_Salas_id AND TBL_Salas_id = TBL_Salas.id ' \
+                 'AND TBL_Salas_id = %s ORDER BY time DESC) as query%s ' % (i, i)
         if i <= 2:
             query += " UNION ALL "
-
+    print(query)
     all_rooms = cur.execute(query).fetchall()
 
     data = []
@@ -99,8 +104,11 @@ def api_last_event_by_room(id_room):
 
 @app.route('/api/room/<id_room>/events/<date_from>/<date_to>', methods=['GET'])
 def api_event_from_to(id_room, date_from, date_to):
-    query = "SELECT TOP 1 * FROM TBL_Eventos WHERE TBL_Salas_id = " + id_room + " AND time > " + date_from + \
-            " AND time < " + date_to + " ORDER BY time DESC"
+    query = "SELECT * FROM TBL_Eventos WHERE TBL_Salas_id = " + id_room + " AND time > '" + date_from + \
+            "' AND time < '" + date_to + "' ORDER BY time DESC"
+
+    print(date_from)
+    print(date_to)
 
     conn = pyodbc.connect(values.connection_string)
     cur = conn.cursor()

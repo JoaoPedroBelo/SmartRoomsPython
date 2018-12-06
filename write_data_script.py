@@ -18,24 +18,24 @@ def connect_database():
         return False
 
 
-def insert_event_into_database(par_connection, par_cursor, par_event_type, par_timestamp, par_id_room):
+def insert_event_into_database(par_connection, par_cursor, par_event_type, par_timestamp, par_id_room, par_occupied_seats, par_empty_seats):
     add_event = "INSERT INTO TBL_Eventos" \
-                " VALUES (%s, '%s', %s, null, null)" % (par_event_type, par_timestamp, par_id_room)
+                " VALUES (%s, '%s', %s, %s, %s)" % (par_event_type, par_timestamp, par_id_room, par_occupied_seats, par_empty_seats)
 
-    room_ocupation = check_room_occupation(par_cursor, par_id_room)
-
-    if room_ocupation > 0 or par_event_type == 1:  # if room is empty doesnt insert an exited room event
-        try:
-            par_cursor.execute(add_event)  # Insert new event if room isnt empty
-            par_connection.commit()
-        except pyodbc.Error as e:
-            functions.message(str(datetime.now()) + ': ' + "ERROR INSERTING INTO DB: " + str(e))
-            write_to_file(str(par_event_type) + ',' + str(par_id_room), par_timestamp)
+    if (par_event_type == 1 and empty_seats[int(par_id_room)] > 0) or par_event_type == -1:
+        if occupied_seats[int(par_id_room)] > 0 or par_event_type == 1:  # if room is empty doesnt insert leave room event
+            try:
+                par_cursor.execute(add_event)  # Insert new event if room isnt empty
+                par_connection.commit()
+            except pyodbc.Error as e:
+                functions.message(str(datetime.now()) + ': ' + "ERROR INSERTING INTO DB: " + str(e))
+                write_to_file(str(par_event_type) + ',' + str(par_id_room) + "," + par_timestamp + ','
+                              + occupied_seats[par_id_room] + ',' + empty_seats[par_id_room])
+                return False
+        else:
+            functions.message(
+                str(datetime.now()) + ': ' + "ERROR INSERTING EVENT: Room " + str(par_id_room) + " is empty" + '\n')
             return False
-    else:
-        functions.message(
-            str(datetime.now()) + ': ' + "ERROR INSERTING EVENT: Room " + str(par_id_room) + " is empty" + '\n')
-        return False
 
     functions.message(str(datetime.now()) + ': ' + "Data added successfully." + '\n')
     return True
@@ -44,12 +44,12 @@ def insert_event_into_database(par_connection, par_cursor, par_event_type, par_t
 def check_room_occupation(par_cursor, par_id_room):
     # check room occupation in DB
     try:
-        par_cursor.execute("SELECT SUM(tipo) FROM TBL_Eventos WHERE TBL_Salas_id = " + str(par_id_room))
+        par_cursor.execute("SELECT TOP 1 * FROM TBL_Eventos WHERE TBL_Salas_id = %s ORDER BY time DESC" % str(par_id_room))
     except pyodbc.Error as e:
         functions.message(str(datetime.now()) + ': ' + "ERROR GETTING ROOM OCCUPATION: " + str(e))
 
     for row in par_cursor.fetchall():
-        room_ocupation = row[0]
+        room_ocupation = int(row[4])
 
     # check room occupation in backlog
     fname = values.file_name
@@ -65,7 +65,7 @@ def check_room_occupation(par_cursor, par_id_room):
                 return
 
     for line in content:
-        s_event_type, s_id_room, s_timestamp = line.split(',')
+        s_event_type, s_id_room, s_timestamp, s_occupied_seats, s_empty_seats = line.split(',')
 
         if int(s_id_room) == par_id_room:
             room_ocupation += int(s_event_type)
@@ -73,21 +73,21 @@ def check_room_occupation(par_cursor, par_id_room):
     return room_ocupation
 
 
-def write_to_file(par_data_decoded, par_timestamp):
+def write_to_file(par_data):
     functions.message(str(datetime.now()) + ': ' + "Writing data to file because connection failed.")
 
     fname = values.file_name
     if os.path.exists(fname):
         with open(fname, 'a') as f:
             try:
-                f.write(par_data_decoded + "," + par_timestamp + '\n')
+                f.write(par_data + '\n')
                 f.close()
             except Exception as e:
                 functions.message(str(datetime.now()) + ': ' + "ERROR WRITTING FILE: " + str(e))
                 return False
     else:
         f = open(fname, 'a')
-        f.write(par_data_decoded + "," + par_timestamp + '\n')
+        f.write(par_data + '\n')
         f.close()
 
     functions.message(str(datetime.now()) + ': ' + "Data logged in file connection_failed_backlog.txt" + '\n')
@@ -110,9 +110,9 @@ def retry_inserting_backlog(par_connection, par_cursor):
     while content:
         functions.message(str(datetime.now()) + ': ' + '\n\nTrying to insert the backlog into the DB:\n')
         line = content[0]
-        s_event_type, s_id_room, s_timestamp = line.split(',')
+        s_event_type, s_id_room, s_timestamp, s_occupied_seats, s_empty_seats = line.split(',')
         result = insert_event_into_database(par_connection, par_cursor, int(s_event_type), s_timestamp,
-                                            s_id_room)
+                                            s_id_room, s_occupied_seats, s_empty_seats)
 
         if result:
             content.pop(0)
@@ -126,7 +126,37 @@ def retry_inserting_backlog(par_connection, par_cursor):
         f.close()
 
 
+def get_room_capacity(par_cursor):
+    room_capacity = [0, 0, 0, 0]
+
+    try:
+        par_cursor.execute("SELECT * FROM TBL_Salas")
+        data = par_cursor.fetchall()
+        for row in data:
+            room_capacity[row[0]] = row[2]
+    except pyodbc.Error as e:
+        functions.message(str(datetime.now()) + ': ' + "ERROR getting room capacity from DB: " + str(e))
+        return False
+
+    return room_capacity
+
+
 if __name__ == "__main__":
+    connection = connect_database()
+    cursor = connection.cursor()
+
+    occupied_seats = [0, 0, 0, 0]
+    empty_seats = get_room_capacity(cursor)
+    for i in range(4):
+        room_i_occupation = check_room_occupation(cursor, i)
+        occupied_seats[i] += room_i_occupation
+        empty_seats[i] -= room_i_occupation
+
+    retry_inserting_backlog(connection, cursor)
+
+    cursor.close()
+    connection.close()
+
     server_address = ('localhost', 6789)
     max_size = 4096
 
@@ -144,19 +174,29 @@ if __name__ == "__main__":
         data_decoded = data.decode("UTF-8")
         event_type, id_room = (data_decoded.split(","))
         timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+        id_room = int(id_room)
+
+        if event_type == 1:
+            occupied_seats[id_room] += 1
+            empty_seats[id_room] -= 1
+        else:
+            occupied_seats[id_room] -= 1
+            empty_seats[id_room] += 1
 
         functions.message(str(datetime.now()) + ': ' + '\nRECIEVED: ' + data_decoded)
 
         connection = connect_database()
 
         if connection is False:
-            write_to_file(data_decoded, timestamp)
+            write_to_file(data_decoded + ',' + timestamp + ',' + str(occupied_seats[id_room])
+                          + ',' + str(empty_seats[id_room]))
         else:
             cursor = connection.cursor()
 
             retry_inserting_backlog(connection, cursor)
 
-            insert_event_into_database(connection, cursor, int(event_type), timestamp, id_room)
+            insert_event_into_database(connection, cursor, int(event_type), timestamp, id_room,
+                                       occupied_seats[id_room], empty_seats[id_room])
 
         cursor.close()
         connection.close()
