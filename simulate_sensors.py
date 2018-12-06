@@ -60,14 +60,14 @@ max_size = 4096
 
 functions.message(str(datetime.now()) + ': ' + 'Starting the client.')
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
+first_time_run = 0  # Primeira vez que o programa é executado
 while True:  # making a loop
     fail = 3     # probablidade de falhar
     chance = 50  # chance de entrar ou sair um grupo de pessoas
     Bsize = 5  # tamanho maximo do grupo
     night = 21   # hora que começa a noite
     day = 8      # hora que começa o dia
-    first_time_run = 0  # Primeira vez que o programa é executado
+
     if first_time_run != 0:
         behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
     else:
