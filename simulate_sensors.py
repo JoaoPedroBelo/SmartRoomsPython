@@ -72,6 +72,7 @@ while True:  # making a loop
         behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
     else:
         behavior=1
+        firt_time_run=1
 
     if behavior == 1:  # Uma pessoa no sensor
         SensorActivate = generate_in_out()
