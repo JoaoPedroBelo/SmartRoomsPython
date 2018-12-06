@@ -14,7 +14,7 @@ def home():
     return '''<h1>SmartStudyRooms</h1>
 <p><a href="http://smartrooms.ddns.net:5000/api/events">All Events</a> </p>
 <p><a href="http://smartrooms.ddns.net:5000/api/rooms">All Rooms</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation">All Rooms Occupations</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation">All Rooms Occupation</a></p>
 <p><a href="http://smartrooms.ddns.net:5000/api/room/0/last-event">Room Last Event</a></p>
 <p><a href="http://smartrooms.ddns.net:5000/api/room/0/events/<date_from>/<date_to>">Room From TO</a></p>
 <p><a href="http://smartrooms.ddns.net:5000/api/room/<id_room>/predict">Room Predict</a></p>
