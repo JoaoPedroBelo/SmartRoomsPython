@@ -48,7 +48,7 @@ def check_room_occupation(par_cursor, par_id_room):
     except pyodbc.Error as e:
         functions.message(str(datetime.now()) + ': ' + "ERROR GETTING ROOM OCCUPATION: " + str(e))
 
-    for row in cursor.fetchall():
+    for row in par_cursor.fetchall():
         room_ocupation = row[0]
 
     # check room occupation in backlog
