@@ -51,7 +51,7 @@ def api_all_rooms():
 
 
 @app.route('/api/rooms/occupation', methods=['GET'])
-def api_all_rooms():
+def api_all_rooms_occupation():
     conn = pyodbc.connect(values.connection_string)
     cur = conn.cursor()
     all_rooms = cur.execute('SELECT TBL_Salas_id as Room_id, SUM(tipo) '
