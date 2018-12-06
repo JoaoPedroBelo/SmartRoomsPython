@@ -23,9 +23,9 @@ def home():
 <p><a href="http://smartrooms.ddns.net:5000/api/events">Get All Events</a> </p>
 <p><a href="http://smartrooms.ddns.net:5000/api/rooms">Get All Rooms</a></p>
 <p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation">Get All Rooms Occupation</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/0/last-event">Get Room <id> Last Event</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/0/events/2018-11-01T00:00:00/2018-12-11T00:00:00">Get Room <id> events From <date> TO <date></a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/0/predict">Get Room <id> Predict (id_room = 0,1,2,3)</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/last-event">Get Room &lt;id&gt; Last Event</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/events/2018-11-01T00:00:00/2018-12-11T00:00:00">Get Room &lt;id&gt; events From &lt;date&gt; TO &lt;date&gt;</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/predict">Get Room &lt;id&gt; Predict</a></p>
 
  '''
 
