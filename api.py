@@ -133,5 +133,5 @@ def api_room_predict(id_room):
     return jsonify(data)
 
 
-#app.run(host='0.0.0.0')
-app.run()
+app.run(host='0.0.0.0')
+#app.run()
