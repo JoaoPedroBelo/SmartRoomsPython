@@ -50,6 +50,22 @@ def api_all_rooms():
     return jsonify(data)
 
 
+@app.route('/api/rooms/occupation', methods=['GET'])
+def api_all_rooms():
+    conn = pyodbc.connect(values.connection_string)
+    cur = conn.cursor()
+    all_rooms = cur.execute('SELECT TBL_Salas_id as Room_id, SUM(tipo) '
+                            'FROM TBL_Eventos GROUP BY TBL_Salas_i').fetchall()
+
+    data = []
+    columns = [column[0] for column in cur.description]
+
+    for row in all_rooms:
+        data.append(dict(zip(columns, list(row))))
+
+    return jsonify(data)
+
+
 @app.route('/api/room/<id_room>/last-event', methods=['GET'])
 def api_last_event_by_room(id_room):
     query = "SELECT TOP 1 * FROM TBL_Eventos WHERE TBL_Salas_id = " + id_room + " ORDER BY time DESC"
@@ -87,7 +103,8 @@ def api_event_from_to(id_room, date_from, date_to):
 
 @app.route('/api/room/<id_room>/predict', methods=['GET'])
 def api_room_predict(id_room):
-    query = "SELECT empty_seats, occupied_seats, time FROM TBL_Eventos WHERE TBL_Salas_id = " + id_room + " ORDER BY time DESC"
+    query = "SELECT empty_seats, occupied_seats, time FROM TBL_Eventos WHERE TBL_Salas_id = " + id_room + \
+            " ORDER BY time DESC"
 
     conn = pyodbc.connect(values.connection_string)
     cur = conn.cursor()
