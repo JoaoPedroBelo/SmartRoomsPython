@@ -3,23 +3,29 @@ from flask import request, jsonify
 import pyodbc
 from constants import values
 from flask_cors import CORS
+import api
 
+
+print(dir(api))
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 app.config['JSON_SORT_KEYS'] = False
 CORS(app)
 
+def teste():
+    return
+
 
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>SmartStudyRooms</h1>
-<p><a href="http://smartrooms.ddns.net:5000/api/events">All Events</a> </p>
-<p><a href="http://smartrooms.ddns.net:5000/api/rooms">All Rooms</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation">All Rooms Occupation</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/0/last-event">Room Last Event</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/0/events/<date_from>/<date_to>">Room From TO</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/<id_room>/predict">Room Predict</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/events">Get All Events</a> </p>
+<p><a href="http://smartrooms.ddns.net:5000/api/rooms">Get All Rooms</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation">Get All Rooms Occupation</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/last-event">Get Room <id> Last Event</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/events/2018-11-01T00:00:00/2018-12-11T00:00:00">Get Room <id> events From <date> TO <date></a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/predict">Get Room <id> Predict (id_room = 0,1,2,3)</a></p>
 
  '''
 

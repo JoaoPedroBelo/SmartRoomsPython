@@ -142,6 +142,15 @@ def get_room_capacity(par_cursor):
 
 
 if __name__ == "__main__":
+    server_address = ('localhost', 6789)
+    max_size = 4096
+
+    functions.start_logging('/home/pi/projeto/write_data_script.log')
+    functions.message(str(datetime.now()) + ': ' + 'Starting the server.')
+
+    server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server.bind(server_address)
+
     connection = connect_database()
     cursor = connection.cursor()
 
@@ -152,19 +161,8 @@ if __name__ == "__main__":
         occupied_seats[i] += room_i_occupation
         empty_seats[i] -= room_i_occupation
 
-    retry_inserting_backlog(connection, cursor)
-
     cursor.close()
     connection.close()
-
-    server_address = ('localhost', 6789)
-    max_size = 4096
-
-    functions.start_logging('/home/pi/projeto/write_data_script.log')
-    functions.message(str(datetime.now()) + ': ' + 'Starting the server.')
-
-    server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server.bind(server_address)
 
     while True:  # making a loop
         functions.message(str(datetime.now()) + ': ' + 'Waiting for sensors.')
@@ -176,16 +174,16 @@ if __name__ == "__main__":
         timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
         id_room = int(id_room)
 
+        functions.message(str(datetime.now()) + ': ' + '\nRECIEVED: ' + data_decoded)
+
+        connection = connect_database()
+
         if event_type == 1:
             occupied_seats[id_room] += 1
             empty_seats[id_room] -= 1
         else:
             occupied_seats[id_room] -= 1
             empty_seats[id_room] += 1
-
-        functions.message(str(datetime.now()) + ': ' + '\nRECIEVED: ' + data_decoded)
-
-        connection = connect_database()
 
         if connection is False:
             write_to_file(data_decoded + ',' + timestamp + ',' + str(occupied_seats[id_room])
