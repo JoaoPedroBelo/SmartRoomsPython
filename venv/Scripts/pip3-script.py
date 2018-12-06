@@ -1,4 +1,4 @@
-#!C:\Users\Dfmar\Dropbox\Aulas\_Uni\_Mestrado\SD\Projeto\SmartStudyRooms\venv\Scripts\python.exe
+#!C:\Users\JoaoP\Qsync\UMA\Mestrado\1ano\1semestre\SD\Projecto\SmartRoomsPython\venv\Scripts\python.exe
 # EASY-INSTALL-ENTRY-SCRIPT: 'pip==10.0.1','console_scripts','pip3'
 __requires__ = 'pip==10.0.1'
 import re

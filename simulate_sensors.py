@@ -11,8 +11,8 @@ def send_data(par_sensoractivate, par_rooms):
     functions.message(str(datetime.now()) + ': ' + sensordata+'\n')
     client.sendto(sensordata.encode(), server_address)
     data, server = client.recvfrom(max_size)
-    functions.message(str(datetime.now()) + ': ' + 'SERVER RESPONSE: ' + str(data.decode('UTF-8')) + '  at  ' +
-                      str(datetime.now()))
+    functions.message(str(datetime.now()) + ': ' + 'SERVER RESPONSE: '+ str(data.decode('UTF-8'))+ '  at  '
+                      + str(datetime.now()))
 
 
 def generate_persons(par_night, par_day):
@@ -68,12 +68,14 @@ while True:  # making a loop
     night = 21   # hora que começa a noite
     day = 8      # hora que começa o dia
     behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
-    rooms = randint(0, fail) # gera a sala em que vao sair ou entrar
+
     if behavior == 1:  # Uma pessoa no sensor
         SensorActivate = generate_in_out()
         if SensorActivate == 0:  # !! Entrada
+            rooms = randint(0, fail)
             if rooms < 4:
                 # Sensor_Out = 1 # Sensor de fora activa
+
                 functions.message(str(datetime.now()) + ': ' + "Sensor fora ativado"+'\n')
                 time.sleep(0.2)
                 # Sensor_Out = 0 # Sensor de fora desativa
@@ -91,6 +93,7 @@ while True:  # making a loop
             # Sensor_In = 0 # Sensor de dentro desativa
 
         elif SensorActivate == 1:  # !! Saida
+            rooms = randint(0, fail)
             if rooms < 4:
                 functions.message(str(datetime.now()) + ': ' + "Sensor dentro ativado"+'\n')
                 # Sensor_In = 1 # Sensor de dentro ativa

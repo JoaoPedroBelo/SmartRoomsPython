@@ -12,7 +12,14 @@ app.config['JSON_SORT_KEYS'] = False
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>SmartStudyRooms</h1>
-<p>An API.</p>'''
+<p><a href="http://smartrooms.ddns.net:5000/api/events">All Events</a> </p>
+<p><a href="http://smartrooms.ddns.net:5000/api/rooms">All Rooms</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation">All Rooms Occupations</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/last-event">Room Last Event</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/events/<date_from>/<date_to>">Room From TO</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/<id_room>/predict">Room Predict</a></p>
+
+ '''
 
 
 @app.errorhandler(404)
@@ -119,4 +126,5 @@ def api_room_predict(id_room):
     return jsonify(data)
 
 
-app.run(host='0.0.0.0')
+#app.run(host='0.0.0.0')
+app.run()
