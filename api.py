@@ -61,8 +61,15 @@ def api_all_rooms():
 def api_all_rooms_occupation():
     conn = pyodbc.connect(values.connection_string)
     cur = conn.cursor()
-    all_rooms = cur.execute('SELECT TBL_Salas_id as Room_id, SUM(tipo) '
-                            'FROM TBL_Eventos GROUP BY TBL_Salas_i').fetchall()
+
+    query = ''
+    for i in range(4):
+        query += 'SELECT TBL_Salas_id as Room_id, occupied_seats, empty_seats FROM (SELECT TOP 1 TBL_Salas_id, occupied_seats, empty_seats, time' \
+                 ' FROM TBL_Eventos WHERE TBL_Salas_id = %s ORDER BY time DESC) as query%s ' % (i, i)
+        if i <= 2:
+            query += " UNION ALL "
+
+    all_rooms = cur.execute(query).fetchall()
 
     data = []
     columns = [column[0] for column in cur.description]
