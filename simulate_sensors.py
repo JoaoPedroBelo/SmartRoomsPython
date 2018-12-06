@@ -67,7 +67,11 @@ while True:  # making a loop
     Bsize = 5  # tamanho maximo do grupo
     night = 21   # hora que começa a noite
     day = 8      # hora que começa o dia
-    behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
+    firt_time_run = 0  # Primeira vez que o programa é executado
+    if firt_time_run != 0:
+        behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
+    else:
+        behavior=1
 
     if behavior == 1:  # Uma pessoa no sensor
         SensorActivate = generate_in_out()
