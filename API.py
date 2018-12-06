@@ -24,7 +24,7 @@ def page_not_found(e):
 def api_all_events():
     conn = pyodbc.connect(values.connection_string)
     cur = conn.cursor()
-    all_events = cur.execute('SELECT * FROM TBL_Eventos;').fetchall()
+    all_events = cur.execute('SELECT * FROM TBL_Eventos ORDER BY time DESC;').fetchall()
 
     data = []
     columns = [column[0] for column in cur.description]
