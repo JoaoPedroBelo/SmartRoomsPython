@@ -175,7 +175,8 @@ if __name__ == "__main__":
         event_type, id_room = (data_decoded.split(","))
         timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
         id_room = int(id_room)
-
+        event_type = int(event_type
+                         )
         functions.message(str(datetime.now()) + ': ' + '\nRECIEVED: ' + data_decoded)
 
         connection = connect_database()
@@ -195,7 +196,7 @@ if __name__ == "__main__":
 
             retry_inserting_backlog(connection, cursor)
 
-            insert_event_into_database(connection, cursor, int(event_type), timestamp, id_room,
+            insert_event_into_database(connection, cursor, event_type, timestamp, id_room,
                                        occupied_seats[id_room], empty_seats[id_room])
 
         cursor.close()
