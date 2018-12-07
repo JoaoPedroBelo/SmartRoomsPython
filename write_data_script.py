@@ -18,19 +18,20 @@ def connect_database():
         return False
 
 
-def insert_event_into_database(par_connection, par_cursor, par_event_type, par_timestamp, par_id_room, par_occupied_seats, par_empty_seats):
-    add_event = "INSERT INTO TBL_Eventos" \
-                " VALUES (%s, '%s', %s, %s, %s)" % (par_event_type, par_timestamp, par_id_room, par_occupied_seats, par_empty_seats)
+def insert_event_into_database(par_connection, par_cursor, par_event_type, par_timestamp, par_id_room,
+                               par_occupied_seats, par_empty_seats):
+    add_event = ("INSERT INTO TBL_Eventos VALUES (%s, '%s', %s, %s, %s)"
+                 % (par_event_type, par_timestamp, par_id_room, par_occupied_seats, par_empty_seats))
 
     if (par_event_type == 1 and empty_seats[int(par_id_room)] > 0) or par_event_type == -1:
-        if occupied_seats[int(par_id_room)] > 0 or par_event_type == 1:  # if room is empty doesnt insert leave room event
+        if occupied_seats[int(par_id_room)] > 0 or par_event_type == 1:  # if room is empty dont insert leave room event
             try:
                 par_cursor.execute(add_event)  # Insert new event if room isnt empty
                 par_connection.commit()
             except pyodbc.Error as e:
                 functions.message(str(datetime.now()) + ': ' + "ERROR INSERTING INTO DB: " + str(e))
                 write_to_file(str(par_event_type) + ',' + str(par_id_room) + "," + par_timestamp + ','
-                              + occupied_seats[par_id_room] + ',' + empty_seats[par_id_room])
+                              + par_occupied_seats + ',' + par_empty_seats)
                 return False
         else:
             functions.message(
@@ -44,7 +45,8 @@ def insert_event_into_database(par_connection, par_cursor, par_event_type, par_t
 def check_room_occupation(par_cursor, par_id_room):
     # check room occupation in DB
     try:
-        par_cursor.execute("SELECT TOP 1 * FROM TBL_Eventos WHERE TBL_Salas_id = %s ORDER BY time DESC" % str(par_id_room))
+        par_cursor.execute("SELECT TOP 1 * FROM TBL_Eventos WHERE TBL_Salas_id = %s ORDER BY time DESC"
+                           % str(par_id_room))
     except pyodbc.Error as e:
         functions.message(str(datetime.now()) + ': ' + "ERROR GETTING ROOM OCCUPATION: " + str(e))
 
