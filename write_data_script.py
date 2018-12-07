@@ -23,20 +23,14 @@ def insert_event_into_database(par_connection, par_cursor, par_event_type, par_t
     add_event = ("INSERT INTO TBL_Eventos VALUES (%s, '%s', %s, %s, %s)"
                  % (par_event_type, par_timestamp, par_id_room, par_occupied_seats, par_empty_seats))
 
-    if (par_event_type == 1 and empty_seats[int(par_id_room)] > 0) or par_event_type == -1:
-        if occupied_seats[int(par_id_room)] > 0 or par_event_type == 1:  # if room is empty dont insert leave room event
-            try:
-                par_cursor.execute(add_event)  # Insert new event if room isnt empty
-                par_connection.commit()
-            except pyodbc.Error as e:
-                functions.message(str(datetime.now()) + ': ' + "ERROR INSERTING INTO DB: " + str(e))
-                write_to_file(str(par_event_type) + ',' + str(par_id_room) + "," + par_timestamp + ','
-                              + par_occupied_seats + ',' + par_empty_seats)
-                return False
-        else:
-            functions.message(
-                str(datetime.now()) + ': ' + "ERROR INSERTING EVENT: Room " + str(par_id_room) + " is empty" + '\n')
-            return False
+    try:
+        par_cursor.execute(add_event)  # Insert new event if room isnt empty
+        par_connection.commit()
+    except pyodbc.Error as e:
+        functions.message(str(datetime.now()) + ': ' + "ERROR INSERTING INTO DB: " + str(e))
+        write_to_file(str(par_event_type) + ',' + str(par_id_room) + "," + par_timestamp + ','
+                      + par_occupied_seats + ',' + par_empty_seats)
+        return False
 
     functions.message(str(datetime.now()) + ': ' + "Data added successfully." + '\n')
     return True
@@ -157,7 +151,8 @@ if __name__ == "__main__":
     cursor = connection.cursor()
 
     occupied_seats = [0, 0, 0, 0]
-    empty_seats = get_room_capacity(cursor)
+    room_capacity = get_room_capacity(cursor)
+    empty_seats = room_capacity
     for i in range(4):
         room_i_occupation = check_room_occupation(cursor, i)
         occupied_seats[i] += room_i_occupation
@@ -175,29 +170,35 @@ if __name__ == "__main__":
         event_type, id_room = (data_decoded.split(","))
         timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
         id_room = int(id_room)
-        event_type = int(event_type
-                         )
+        event_type = int(event_type)
+
         functions.message(str(datetime.now()) + ': ' + '\nRECIEVED: ' + data_decoded)
 
         connection = connect_database()
 
-        if event_type == 1:
-            occupied_seats[id_room] += 1
-            empty_seats[id_room] -= 1
-        else:
+        if event_type == -1 and occupied_seats[id_room] > 0:
             occupied_seats[id_room] -= 1
             empty_seats[id_room] += 1
-
-        if connection is False:
-            write_to_file(data_decoded + ',' + timestamp + ',' + str(occupied_seats[id_room])
-                          + ',' + str(empty_seats[id_room]))
+            proceeds = True
+        elif event_type == 11 and empty_seats[id_room] < room_capacity[id_room]:
+            occupied_seats[id_room] += 1
+            empty_seats[id_room] -= 1
+            proceeds = True
         else:
-            cursor = connection.cursor()
+            functions.message("Room %s is full/empty false entry/exit")
+            proceeds = False
 
-            retry_inserting_backlog(connection, cursor)
+        if proceeds:
+            if connection is False:
+                write_to_file(data_decoded + ',' + timestamp + ',' + str(occupied_seats[id_room])
+                              + ',' + str(empty_seats[id_room]))
+            else:
+                cursor = connection.cursor()
 
-            insert_event_into_database(connection, cursor, event_type, timestamp, id_room,
-                                       occupied_seats[id_room], empty_seats[id_room])
+                retry_inserting_backlog(connection, cursor)
+
+                insert_event_into_database(connection, cursor, event_type, timestamp, id_room,
+                                           occupied_seats[id_room], empty_seats[id_room])
 
         cursor.close()
         connection.close()
