@@ -176,16 +176,15 @@ if __name__ == "__main__":
 
         connection = connect_database()
 
+        proceeds = True
         if event_type == -1 and occupied_seats[id_room] > 0:
             occupied_seats[id_room] -= 1
             empty_seats[id_room] += 1
-            proceeds = True
         elif event_type == 11 and empty_seats[id_room] < room_capacity[id_room]:
             occupied_seats[id_room] += 1
             empty_seats[id_room] -= 1
-            proceeds = True
         else:
-            functions.message("Room %s is full/empty false entry/exit")
+            functions.message("Room %s is full/empty false entry/exit" % id_room)
             proceeds = False
 
         if proceeds:
