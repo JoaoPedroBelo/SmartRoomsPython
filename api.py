@@ -3,15 +3,13 @@ from flask import request, jsonify
 import pyodbc
 from constants import values
 from flask_cors import CORS
-import api
 
-
-print(dir(api))
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 app.config['JSON_SORT_KEYS'] = False
 CORS(app)
+
 
 def teste():
     return
@@ -148,4 +146,3 @@ def api_room_predict(id_room):
 
 
 app.run(host='0.0.0.0')
-#app.run()
