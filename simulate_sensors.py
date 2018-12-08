@@ -36,25 +36,23 @@ def verify_weekend():
 
 def generate_in_out():
     now = datetime.now()
-    if not verify_weekend():
-        if 7 <= now.hour <= 11:
-            in_out = randint(1, 10)
-            if in_out != 1:
-                return 0  # Entrada
-            else:
-                return 1  # Saida
-        elif 17 <= now.hour <= 19:
-            in_out = randint(1, 10)
-            if in_out != 1:
-                return 1  # Entrada
-            else:
-                return 0   # Saida
+
+    if 8 <= now.hour <= 11:
+        in_out = randint(1, 10)
+        if in_out != 1:
+            return 0  # Entrada
         else:
-            in_out = randint(0, 1)
-            return in_out
+            return 1  # Saida
+    elif 17 <= now.hour <= 20:
+        in_out = randint(1, 10)
+        if in_out != 1:
+            return 1  # Entrada
+        else:
+            return 0   # Saida
     else:
         in_out = randint(0, 1)
         return in_out
+
 
 
 functions.start_logging('/home/pi/projeto/simulate_sensors.log')
