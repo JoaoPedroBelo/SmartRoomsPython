@@ -180,7 +180,7 @@ if __name__ == "__main__":
         if event_type == -1 and occupied_seats[id_room] > 0:
             occupied_seats[id_room] -= 1
             empty_seats[id_room] += 1
-        elif event_type == 11 and empty_seats[id_room] < room_capacity[id_room]:
+        elif event_type == 1 and empty_seats[id_room] > 0:
             occupied_seats[id_room] += 1
             empty_seats[id_room] -= 1
         else:
@@ -199,7 +199,10 @@ if __name__ == "__main__":
                 insert_event_into_database(connection, cursor, event_type, timestamp, id_room,
                                            occupied_seats[id_room], empty_seats[id_room])
 
-        cursor.close()
+        try: # tries to close the cursor if its still open
+            cursor.close()
+        except pyodbc.Error as e:
+            pass
         connection.close()
 
     # server.close()
