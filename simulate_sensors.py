@@ -100,7 +100,6 @@ while True:  # making a loop
                         print("Sensor dentro activado" + '\n')
                         send_data(1, rooms)
             # Sensor_In = 0 # Sensor de dentro desativa
-
         elif SensorActivate == 1:  # !! Saida
             rooms = randint(0, fail)
             if rooms < 4:
@@ -122,7 +121,6 @@ while True:  # making a loop
             # Sensor_Out = 0 # Sensor de fora ativa
 
     DELAY = randint(60, 120)  # !DELAY! (supostamente é 1segundo +-)
-    verify_weekend()
     functions.message(str(datetime.now()) + ': ' + "delay: ")
     functions.message(str(datetime.now()) + ': ' + str(DELAY))
     time.sleep(DELAY)
