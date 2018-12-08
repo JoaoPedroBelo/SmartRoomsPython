@@ -54,9 +54,7 @@ def generate_in_out():
         return in_out
 
 
-
 functions.start_logging('/home/pi/projeto/simulate_sensors.log')
-
 server_address = ('localhost', 6789)
 max_size = 4096
 
