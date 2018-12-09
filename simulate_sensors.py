@@ -21,9 +21,9 @@ def generate_persons(par_night, par_day):
         if par_day <= now.hour <= par_night:
             return 2   # chance de uma pessoa passar no sensor 50%
         else:
-            return 10  # chance de uma pessoa passar no sensor 10%
+            return 10  # chance de uma pessoa passar
     else:
-        return 10  # chance de uma pessoa passar no sensor 10%
+        return 50  # chance de uma pessoa passar
 
 
 def verify_weekend():
