@@ -79,7 +79,6 @@ def get_user_rooms_data(par_cursor, par_user_id):
     except pyodbc.Error as e:
         functions.message(str(datetime.now()) + ': ' + "ERROR getting room capacity from DB: " + str(e))
         return False
-
     return rooms_data
 
 
@@ -94,5 +93,4 @@ if __name__ == "__main__":
             message += str(rooms[2]) + " empty seats in " + rooms[1] + '\n' + str(rooms[3]) + " ocupied seats in " + rooms[1] + '\n'
         send_email(email, message)
         message = "the information of the room you have chosen: " + '\n'  # limpa mensagem depois do ciclo
-
 
