@@ -183,4 +183,10 @@ def api_services_status():
     return jsonify(data)
 
 
-app.run(host='0.0.0.0')
+@app.route('/api/subscribed/<email>/<room0>/<room1>/<room2>/<room3>', methods=['GET'])
+def api_subscribed(email, room0, room1, room2, room3):
+
+    return jsonify("ok")
+
+app.run()
+#app.run(host='0.0.0.0')

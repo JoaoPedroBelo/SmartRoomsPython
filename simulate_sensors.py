@@ -18,7 +18,7 @@ def generate_persons(par_night, par_day):
     now = datetime.now()
     if not verify_weekend():
         if par_day <= now.hour <= par_night:
-            if 8 <= now.hour <= 11 or 17 <= now.hour <= 21:
+            if verify_rush_time() == "in" or verify_rush_time() == "out":
                 return 1   # chance de uma pessoa passar no sensor em hora de entrada ou saida
             else:
                 return 2    # em horas normais
@@ -36,16 +36,23 @@ def verify_weekend():
         return False
 
 
-def generate_in_out():
+def verify_rush_time():
     now = datetime.now()
-
     if 8 <= now.hour <= 11:
+        return"in"
+    elif 17 <= now.hour <= 21:
+        return"out"
+
+
+def generate_in_out():
+
+    if verify_rush_time() == "in":
         in_out = randint(1, 20)
         if in_out != 1:
             return 0  # Entrada
         else:
             return 1  # Saida
-    elif 17 <= now.hour <= 20:
+    elif verify_rush_time() == "out":
         in_out = randint(1, 20)
         if in_out != 1:
             return 1  # Saida
@@ -59,7 +66,6 @@ def generate_in_out():
 functions.start_logging('/home/pi/projeto/simulate_sensors.log')
 server_address = ('localhost', 6789)
 max_size = 4096
-
 functions.message(str(datetime.now()) + ': ' + 'Starting the client.')
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 first_time_run = 0  # Primeira vez que o programa é executado
@@ -70,7 +76,7 @@ while True:  # making a loop
     night = 21   # hora que começa a noite
     day = 8      # hora que começa o dia
 
-    if first_time_run != 0:
+    if first_time_run == 0:
         behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
     else:
         behavior = 1
