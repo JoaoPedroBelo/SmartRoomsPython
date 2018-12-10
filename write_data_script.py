@@ -6,7 +6,7 @@ from datetime import datetime
 from constants import values, functions
 import logging
 
-##
+
 def connect_database():
     try:
         cnxn = pyodbc.connect(values.connection_string)
