@@ -5,6 +5,7 @@ import pyodbc
 import time
 from datetime import datetime
 
+
 def update_status(query):
     try:
         connection = pyodbc.connect(values.connection_string)
