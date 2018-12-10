@@ -21,9 +21,9 @@ def generate_persons(par_night, par_day):
         if par_day <= now.hour <= par_night:
             return 2   # chance de uma pessoa passar no sensor 50%
         else:
-            return 10  # chance de uma pessoa passar no sensor 10%
+            return 10  # chance de uma pessoa passar
     else:
-        return 10  # chance de uma pessoa passar no sensor 10%
+        return 50  # chance de uma pessoa passar
 
 
 def verify_weekend():
@@ -36,13 +36,14 @@ def verify_weekend():
 
 def generate_in_out():
     now = datetime.now()
-    if 7 <= now.hour <= 11:
+
+    if 8 <= now.hour <= 11:
         in_out = randint(1, 10)
         if in_out != 1:
             return 0  # Entrada
         else:
             return 1  # Saida
-    elif 17 <= now.hour <= 19:
+    elif 17 <= now.hour <= 20:
         in_out = randint(1, 10)
         if in_out != 1:
             return 1  # Entrada
@@ -54,24 +55,24 @@ def generate_in_out():
 
 
 functions.start_logging('/home/pi/projeto/simulate_sensors.log')
-
 server_address = ('localhost', 6789)
 max_size = 4096
 
 functions.message(str(datetime.now()) + ': ' + 'Starting the client.')
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
+first_time_run = 0  # Primeira vez que o programa é executado
 while True:  # making a loop
     fail = 3     # probablidade de falhar
     chance = 50  # chance de entrar ou sair um grupo de pessoas
     Bsize = 5  # tamanho maximo do grupo
     night = 21   # hora que começa a noite
     day = 8      # hora que começa o dia
-    firt_time_run = 0  # Primeira vez que o programa é executado
-    if firt_time_run != 0:
+
+    if first_time_run != 0:
         behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
     else:
-        behavior=1
+        behavior = 1
+        first_time_run = 1
 
     if behavior == 1:  # Uma pessoa no sensor
         SensorActivate = generate_in_out()
@@ -95,7 +96,6 @@ while True:  # making a loop
                         print("Sensor dentro activado" + '\n')
                         send_data(1, rooms)
             # Sensor_In = 0 # Sensor de dentro desativa
-
         elif SensorActivate == 1:  # !! Saida
             rooms = randint(0, fail)
             if rooms < 4:
@@ -117,7 +117,6 @@ while True:  # making a loop
             # Sensor_Out = 0 # Sensor de fora ativa
 
     DELAY = randint(60, 120)  # !DELAY! (supostamente é 1segundo +-)
-    verify_weekend()
     functions.message(str(datetime.now()) + ': ' + "delay: ")
     functions.message(str(datetime.now()) + ': ' + str(DELAY))
     time.sleep(DELAY)

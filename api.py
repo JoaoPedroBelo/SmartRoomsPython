@@ -11,15 +11,21 @@ app.config['JSON_SORT_KEYS'] = False
 CORS(app)
 
 
+def teste():
+    return
+
+
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>SmartStudyRooms</h1>
-<p><a href="http://smartrooms.ddns.net:5000/api/events">All Events</a> </p>
-<p><a href="http://smartrooms.ddns.net:5000/api/rooms">All Rooms</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation">All Rooms Occupation</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/0/last-event">Room Last Event</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/0/events/<date_from>/<date_to>">Room From TO</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/<id_room>/predict">Room Predict</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/events">Get All Events</a> </p>
+<p><a href="http://smartrooms.ddns.net:5000/api/rooms">Get All Rooms</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation">Get All Rooms Occupation</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/last-event">Get Room &lt;id&gt; Last Event</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/events/2018-11-01T00:00:00/2018-12-11T00:00:00">Get Room &lt;id&gt; events From &lt;date&gt; TO &lt;date&gt;</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/room/0/predict">Get Room &lt;id&gt; Predict</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation/daily">Get daily occupation(week_day=(1-Monday;2-Tuesday,...)</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/services/status">Get services status</a></p>
 
  '''
 
@@ -141,5 +147,40 @@ def api_room_predict(id_room):
     return jsonify(data)
 
 
+@app.route('/api/rooms/occupation/daily', methods=['GET'])
+def api_room_daily_occupation():
+    query = "SELECT TBL_Salas_id as id_room, DATEPART(WEEKDAY,time) as week_day, AVG(occupied_seats) as occupied_seats_avg, AVG(empty_seats) " \
+            "as empty_seats_avg FROM TBL_Eventos WHERE DATEPART(HOUR,time) > 8 AND " \
+            "DATEPART(HOUR,time) < 19 GROUP BY TBL_Salas_id,DATEPART(WEEKDAY, time)"
+
+    conn = pyodbc.connect(values.connection_string)
+    cur = conn.cursor()
+
+    all_results = cur.execute(query).fetchall()
+    columns = [column[0] for column in cur.description]
+
+    data = []
+    for row in all_results:
+        data.append(dict(zip(columns, list(row))))
+
+    return jsonify(data)
+
+
+@app.route('/api/services/status', methods=['GET'])
+def api_services_status():
+    query = "SELECT TBL_Services.name,status,last_update FROM TBL_Services"
+
+    conn = pyodbc.connect(values.connection_string)
+    cur = conn.cursor()
+
+    all_results = cur.execute(query).fetchall()
+    columns = [column[0] for column in cur.description]
+
+    data = []
+    for row in all_results:
+        data.append(dict(zip(columns, list(row))))
+
+    return jsonify(data)
+
+
 app.run(host='0.0.0.0')
-#app.run()
