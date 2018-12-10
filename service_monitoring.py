@@ -24,7 +24,7 @@ def update_status(query):
 if __name__ == "__main__":
     functions.start_logging('/home/pi/projeto/service_monitoring.log')
 
-    # Get existing services from database
+    functions.message(str(datetime.now()) + ": Getting existing services from database")
     try:
         query = ("SELECT * FROM TBL_Services")
         connection = pyodbc.connect(values.connection_string)
@@ -46,27 +46,23 @@ if __name__ == "__main__":
     # Update status every x seconds
     time_to_wait = 30
     while True:
-        status = os.system('systemctl status ' + "api.service" + ' > /dev/null')
+        status_part = ""
+        last_update_part = ""
+        for i in range(len(services_status)):
+            status = os.system('systemctl status ' + services_status[i][0] + ' > /dev/null')
+            if status == 0:
+                services_status[i][1] = 'Ok'
+            else:
+                services_status[i][1] = 'Dead'
 
+            status_part += " WHEN '" + services_status[i][0] + "' THEN '" + services_status[i][1] + "'"
 
-        for p in all_process_ids:
-            p_aux = psutil.Process(p)
-            print(p_aux.status())
-            for value in p_aux.cmdline():
-                for i in range(len(services_status)):
-                    if value == services_status[i][0]:
-                        services_status[i][1] = p_aux.status()
+        update_query = "UPDATE TBL_Services " \
+                       "SET status = CASE service_name " + status_part + \
+                       " ELSE status" \
+                       " END, last_update = '" + time.strftime('%Y-%m-%d %H:%M:%S') + "'" + \
+                       " WHERE service_name IN('sensors.service','server.service','api.service')"
 
-        print(services_status)
-
-        # QUERY
-        # UPDATE TBL_Services
-        #    SET status = CASE id
-        #                       WHEN 1 THEN 12
-        #                       WHEN 2 THEN 22
-        #                       WHEN 3 THEN 33
-        #                       ELSE status
-        #                       END
-        #  WHERE id IN(1, 2, 3);
+        update_status(update_query)
 
         time.sleep(time_to_wait)
