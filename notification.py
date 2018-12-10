@@ -5,6 +5,8 @@ import pyodbc
 from datetime import datetime
 from constants import values, functions
 
+functions.start_logging("/home/pi/projeto/notifications.log")
+
 
 def connect_database():
     try:
@@ -43,7 +45,7 @@ def send_email(par_email, par_message):
 
     server.quit()
 
-    print("successfully sent email to %s:" % (msg['To']))
+    functions.message("successfully sent email to %s:" % (msg['To']))
 
 
 def get_users_subscrive(par_cursor):
