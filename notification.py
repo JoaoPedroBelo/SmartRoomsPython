@@ -5,7 +5,7 @@ import pyodbc
 from datetime import datetime
 from constants import values, functions
 
-functions.start_logging("/home/pi/projeto/notifications.log")
+functions.start_logging("/home/pi/projeto/notification.log")
 
 
 def connect_database():
