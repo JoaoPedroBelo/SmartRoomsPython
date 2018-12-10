@@ -66,3 +66,4 @@ if __name__ == "__main__":
         update_status(update_query)
 
         time.sleep(time_to_wait)
+
