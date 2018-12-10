@@ -94,4 +94,3 @@ if __name__ == "__main__":
         send_email(email, message)
         message = "the information of the room you have chosen: " + '\n'  # limpa mensagem depois do ciclo
 
-
