@@ -79,7 +79,6 @@ def get_user_rooms_data(par_cursor, par_user_id):
     except pyodbc.Error as e:
         functions.message(str(datetime.now()) + ': ' + "ERROR getting room capacity from DB: " + str(e))
         return False
-
     return rooms_data
 
 
