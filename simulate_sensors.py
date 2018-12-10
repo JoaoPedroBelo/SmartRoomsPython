@@ -3,7 +3,6 @@ from random import randint
 import time
 import socket
 from constants import functions
-import logging
 
 
 def send_data(par_sensoractivate, par_rooms):
@@ -19,11 +18,14 @@ def generate_persons(par_night, par_day):
     now = datetime.now()
     if not verify_weekend():
         if par_day <= now.hour <= par_night:
-            return 2   # chance de uma pessoa passar no sensor 50%
+            if 8 <= now.hour <= 11 or 17 <= now.hour <= 21:
+                return 1   # chance de uma pessoa passar no sensor em hora de entrada ou saida
+            else:
+                return 2    # em horas normais
         else:
-            return 10  # chance de uma pessoa passar
+            return 50  # chance de uma pessoa passar a noite
     else:
-        return 50  # chance de uma pessoa passar
+        return 50  # chance de uma pessoa passar ao fim de semana
 
 
 def verify_weekend():
@@ -38,17 +40,17 @@ def generate_in_out():
     now = datetime.now()
 
     if 8 <= now.hour <= 11:
-        in_out = randint(1, 10)
+        in_out = randint(1, 20)
         if in_out != 1:
             return 0  # Entrada
         else:
             return 1  # Saida
     elif 17 <= now.hour <= 20:
-        in_out = randint(1, 10)
+        in_out = randint(1, 20)
         if in_out != 1:
-            return 1  # Entrada
+            return 1  # Saida
         else:
-            return 0   # Saida
+            return 0   # Entrada
     else:
         in_out = randint(0, 1)
         return in_out
