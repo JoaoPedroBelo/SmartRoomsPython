@@ -24,6 +24,7 @@ def home():
 <p><a href="http://smartrooms.ddns.net:5000/api/room/0/last-event">Get Room &lt;id&gt; Last Event</a></p>
 <p><a href="http://smartrooms.ddns.net:5000/api/room/0/events/2018-11-01T00:00:00/2018-12-11T00:00:00">Get Room &lt;id&gt; events From &lt;date&gt; TO &lt;date&gt;</a></p>
 <p><a href="http://smartrooms.ddns.net:5000/api/room/0/predict">Get Room &lt;id&gt; Predict</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation/daily">Get daily occupation(week_day=(1-Monday;2-Tuesday,...)</a></p>
 
  '''
 
@@ -131,6 +132,25 @@ def api_event_from_to(id_room, date_from, date_to):
 def api_room_predict(id_room):
     query = "SELECT empty_seats, occupied_seats, time FROM TBL_Eventos WHERE TBL_Salas_id = " + id_room + \
             " ORDER BY time DESC"
+
+    conn = pyodbc.connect(values.connection_string)
+    cur = conn.cursor()
+
+    all_results = cur.execute(query).fetchall()
+    columns = [column[0] for column in cur.description]
+
+    data = []
+    for row in all_results:
+        data.append(dict(zip(columns, list(row))))
+
+    return jsonify(data)
+
+
+@app.route('/api/rooms/occupation/daily', methods=['GET'])
+def api_room_daily_occupation():
+    query = "SELECT TBL_Salas_id as id_room, DATEPART(WEEKDAY,time) as week_day, AVG(occupied_seats) as occupied_seats_avg, AVG(empty_seats) " \
+            "as empty_seats_avg FROM TBL_Eventos WHERE DATEPART(HOUR,time) > 8 AND " \
+            "DATEPART(HOUR,time) < 19 GROUP BY TBL_Salas_id,DATEPART(WEEKDAY, time)"
 
     conn = pyodbc.connect(values.connection_string)
     cur = conn.cursor()
