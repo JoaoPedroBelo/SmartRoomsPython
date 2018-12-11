@@ -11,10 +11,6 @@ app.config['JSON_SORT_KEYS'] = False
 CORS(app)
 
 
-def teste():
-    return
-
-
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>SmartStudyRooms</h1>
@@ -26,6 +22,7 @@ def home():
 <p><a href="http://smartrooms.ddns.net:5000/api/room/0/predict">Get Room &lt;id&gt; Predict</a></p>
 <p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation/daily">Get daily occupation(week_day=(1-Monday;2-Tuesday,...)</a></p>
 <p><a href="http://smartrooms.ddns.net:5000/api/services/status">Get services status</a></p>
+<p><a href="http://smartrooms.ddns.net:5000/api/subscribed/<email>/<room0>/<room1>/<room2>/<room3>">subscribe</a></p>
 
  '''
 
@@ -185,8 +182,52 @@ def api_services_status():
 
 @app.route('/api/subscribed/<email>/<room0>/<room1>/<room2>/<room3>', methods=['GET'])
 def api_subscribed(email, room0, room1, room2, room3):
-
+   #Verifica se o user existe
+    query = "SELECT id from TBL_Account WHERE email='"+str(email)+"'"
+    conn = pyodbc.connect(values.connection_string)
+    cur = conn.cursor()
+    query_user = cur.execute(query).fetchall()
+    for row in query_user:
+        id = list(row)
+    # Se o user nao existir
+    if not query_user:
+        #Insere
+        query = "INSERT INTO TBL_Account VALUES ('" + str(email) + "')"
+        conn = pyodbc.connect(values.connection_string)
+        cur = conn.cursor()
+        cur.execute(query)
+        conn.commit()
+        #Pega o id que inseriu
+        query = "SELECT id from TBL_Account WHERE email='" + str(email) + "'"
+        conn = pyodbc.connect(values.connection_string)
+        cur = conn.cursor()
+        query_user = cur.execute(query).fetchall()
+        for row in query_user:
+            id = list(row)
+    # Elimina os registos antigos
+    query = "DELETE from TBL_Account_has_TBL_Salas WHERE TBL_Account_id='"+str(id[0])+"'"
+    conn = pyodbc.connect(values.connection_string)
+    cur = conn.cursor()
+    cur.execute(query)
+    conn.commit()
+   #Insere os novos dados
+    if int(room0) == 1:
+        insert_user_rooms(id, 0)
+    if int(room1) == 1:
+        insert_user_rooms(id, 1)
+    if int(room2) == 1:
+        insert_user_rooms(id, 2)
+    if int(room3) == 1:
+        insert_user_rooms(id, 3)
     return jsonify("ok")
 
-app.run()
-#app.run(host='0.0.0.0')
+
+def insert_user_rooms(par_user_id, par_room_id):
+    query = "INSERT INTO TBL_Account_has_TBL_Salas VALUES ('"+str(par_user_id[0])+"','"+str(par_room_id)+"')"
+    conn = pyodbc.connect(values.connection_string)
+    cur = conn.cursor()
+    cur.execute(query)
+    conn.commit()
+
+
+app.run(host='0.0.0.0')
