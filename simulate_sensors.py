@@ -36,7 +36,7 @@ def verify_weekend():
         return False
 
 
-def verify_rush_time():
+def verify_rush_time(): #função utilizada para verificar horas de ponta
     now = datetime.now()
     if 8 <= now.hour <= 11:
         return"in"
@@ -76,7 +76,7 @@ while True:  # making a loop
     night = 21   # hora que começa a noite
     day = 8      # hora que começa o dia
 
-    if first_time_run == 0:
+    if first_time_run != 0:
         behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
     else:
         behavior = 1

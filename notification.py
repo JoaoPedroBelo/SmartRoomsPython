@@ -5,6 +5,7 @@ import pyodbc
 from datetime import datetime
 from constants import values, functions
 
+
 functions.start_logging("/home/pi/projeto/notifications.log")
 
 
@@ -87,10 +88,12 @@ if __name__ == "__main__":
     cursor = connection.cursor()
     message = "the information about the room you have chosen: " + '\n'
     email = ""
-    for user in get_users_subscrive(cursor):
-        for rooms in get_user_rooms_data(cursor, user[0]):
-            email = rooms[0]
-            message += str(rooms[2]) + " empty seats in " + rooms[1] + '\n' + str(rooms[3]) + " ocupied seats in " + rooms[1] + '\n'
-        send_email(email, message)
-        message = "the information of the room you have chosen: " + '\n'  # limpa mensagem depois do ciclo
+    now = datetime.now()
+    if 9 <= now.hour <= 21:
+        for user in get_users_subscrive(cursor):
+            for rooms in get_user_rooms_data(cursor, user[0]):
+                email = rooms[0]
+                message += str(rooms[2]) + " empty seats in " + rooms[1] + '\n' + str(rooms[3]) + " ocupied seats in " + rooms[1] + '\n'
+            send_email(email, message)
+            message = "the information of the room you have chosen: " + '\n'  # limpa mensagem depois do ciclo
 
