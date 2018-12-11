@@ -219,9 +219,8 @@ def api_room_prediction(id_room):
              " AVG(occupied_seats) as occupied_seats_avg,"
              " AVG(empty_seats) as empty_seats_avg "
              "FROM TBL_Eventos "
-             "WHERE DATEPART(HOUR, time) >= 8 "
-             "AND DATEPART(HOUR, time) <= 20 "
-             "AND TBL_Salas_id = " + id_room + " "
+             "WHERE "
+             "TBL_Salas_id = " + id_room + " "
              "AND time > DATEADD(day, -5, CURRENT_TIMESTAMP) "
              "GROUP BY TBL_Salas_id, DATEPART(HOUR, time) "
              "ORDER BY hour ASC")
