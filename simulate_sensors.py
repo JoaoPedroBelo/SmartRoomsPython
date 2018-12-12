@@ -14,7 +14,7 @@ def send_data(par_sensoractivate, par_rooms):
                       + str(datetime.now()))
 
 
-def generate_persons(par_night, par_day):
+def generate_people(par_night, par_day):
     now = datetime.now()
     if not verify_weekend():
         if par_day <= now.hour <= par_night:
@@ -77,7 +77,7 @@ while True:  # making a loop
     day = 8      # hora que começa o dia
 
     if first_time_run != 0:
-        behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
+        behavior = randint(1, generate_people(night, day))  # 1 significa sensor ativado
     else:
         behavior = 1
         first_time_run = 1
