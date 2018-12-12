@@ -126,24 +126,6 @@ def api_event_from_to(id_room, date_from, date_to):
     return jsonify(data)
 
 
-@app.route('/api/room/<id_room>/predict', methods=['GET'])
-def api_room_predict(id_room):
-    query = "SELECT empty_seats, occupied_seats, time FROM TBL_Eventos WHERE TBL_Salas_id = " + id_room + \
-            " ORDER BY time DESC"
-
-    conn = pyodbc.connect(values.connection_string)
-    cur = conn.cursor()
-
-    all_results = cur.execute(query).fetchall()
-    columns = [column[0] for column in cur.description]
-
-    data = []
-    for row in all_results:
-        data.append(dict(zip(columns, list(row))))
-
-    return jsonify(data)
-
-
 @app.route('/api/rooms/occupation/daily', methods=['GET'])
 def api_room_daily_occupation():
     query = "SELECT TBL_Salas_id as id_room, DATEPART(WEEKDAY,time) as week_day, AVG(occupied_seats) as occupied_seats_avg, AVG(empty_seats) " \
@@ -182,7 +164,7 @@ def api_services_status():
 
 @app.route('/api/subscribed/<email>/<room0>/<room1>/<room2>/<room3>', methods=['GET'])
 def api_subscribed(email, room0, room1, room2, room3):
-   #Verifica se o user existe
+    # Verifica se o user existe
     query = "SELECT id from TBL_Account WHERE email='"+str(email)+"'"
     conn = pyodbc.connect(values.connection_string)
     cur = conn.cursor()
@@ -191,13 +173,13 @@ def api_subscribed(email, room0, room1, room2, room3):
         id = list(row)
     # Se o user nao existir
     if not query_user:
-        #Insere
+        # Insere
         query = "INSERT INTO TBL_Account VALUES ('" + str(email) + "')"
         conn = pyodbc.connect(values.connection_string)
         cur = conn.cursor()
         cur.execute(query)
         conn.commit()
-        #Pega o id que inseriu
+        # Pega o id que inseriu
         query = "SELECT id from TBL_Account WHERE email='" + str(email) + "'"
         conn = pyodbc.connect(values.connection_string)
         cur = conn.cursor()
@@ -210,7 +192,7 @@ def api_subscribed(email, room0, room1, room2, room3):
     cur = conn.cursor()
     cur.execute(query)
     conn.commit()
-   #Insere os novos dados
+    # Insere os novos dados
     if int(room0) == 1:
         insert_user_rooms(id, 0)
     if int(room1) == 1:
@@ -230,4 +212,30 @@ def insert_user_rooms(par_user_id, par_room_id):
     conn.commit()
 
 
-app.run(host='0.0.0.0')
+@app.route('/api/room/<id_room>/predict', methods=['GET'])
+def api_room_prediction(id_room):
+    query = ("SELECT"
+             " DATEPART(HOUR, time) as hour,"
+             " AVG(occupied_seats) as occupied_seats_avg,"
+             " AVG(empty_seats) as empty_seats_avg "
+             "FROM TBL_Eventos "
+             "WHERE "
+             "TBL_Salas_id = " + id_room + " "
+             "AND time > DATEADD(day, -5, CURRENT_TIMESTAMP) "
+             "GROUP BY TBL_Salas_id, DATEPART(HOUR, time) "
+             "ORDER BY hour ASC")
+
+    conn = pyodbc.connect(values.connection_string)
+    cur = conn.cursor()
+
+    all_results = cur.execute(query).fetchall()
+    columns = [column[0] for column in cur.description]
+
+    data = []
+    for row in all_results:
+        data.append(dict(zip(columns, list(row))))
+
+    return jsonify(data)
+
+
+app.run()
