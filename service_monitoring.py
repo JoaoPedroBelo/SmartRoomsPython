@@ -31,10 +31,10 @@ if __name__ == "__main__":
         cursor = connection.cursor()
 
         all_services = cursor.execute(query).fetchall()
-
+        print(all_services)
         services_status = []
         for row in all_services:
-            services_status.append([row[0],'stopped'])
+            services_status.append([row[0],row[2],'stopped'])
 
         cursor.close()
         connection.close()
@@ -47,16 +47,17 @@ if __name__ == "__main__":
         status_part = ""
         last_update_part = ""
         for i in range(len(services_status)):
-            status = os.system('systemctl status ' + str(services_status[i][0]) + ' > /dev/null')
+            status = os.system('systemctl status ' + str(services_status[i][1]) + ' > /dev/null')
             if status == 0:
-                services_status[i][1] = 'Ok'
+                services_status[i][2] = 'Ok'
             else:
-                services_status[i][1] = 'Dead'
+                services_status[i][2] = 'Dead'
 
-            status_part += " (" + str(services_status[i][0]) + ",'" + services_status[i][1] + "','" + time.strftime('%Y-%m-%d %H:%M:%S') + "'),"
+            status_part += " (" + str(services_status[i][0]) + ",'" + services_status[i][2] + "','" + time.strftime('%Y-%m-%d %H:%M:%S') + "'),"
 
-        updates_query = "INSERT INTO TBL_Services_Updates (service_id,status,last_update) VALUES " + status_part[
-                                                                                                         :-1] + ";"
+        updates_query = "INSERT INTO TBL_Services_Updates (service_id,status,last_update) VALUES " +\
+                        status_part[:-1] + ";"
+
         update_status(updates_query)
 
         time.sleep(time_to_wait)
