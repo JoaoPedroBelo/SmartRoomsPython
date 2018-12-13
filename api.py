@@ -128,7 +128,8 @@ def api_event_from_to(id_room, date_from, date_to):
 
 @app.route('/api/rooms/occupation/daily', methods=['GET'])
 def api_room_daily_occupation():
-    query = "SELECT TBL_Salas_id as id_room, DATEPART(WEEKDAY,time) as week_day, AVG(occupied_seats) as occupied_seats_avg, AVG(empty_seats) " \
+    query = "SELECT TBL_Salas_id as id_room, " \
+            "DATEPART(WEEKDAY,time) as week_day, AVG(occupied_seats) as occupied_seats_avg, AVG(empty_seats) " \
             "as empty_seats_avg FROM TBL_Eventos WHERE DATEPART(HOUR,time) > 8 AND " \
             "DATEPART(HOUR,time) < 19 GROUP BY TBL_Salas_id,DATEPART(WEEKDAY, time)"
 
@@ -145,13 +146,18 @@ def api_room_daily_occupation():
     return jsonify(data)
 
 
-@app.route('/api/services/status', methods=['GET'])
-def api_services_status():
-    query = ("SELECT TBL_Services.name,TBL_Services_Updates.status,TBL_Services_Updates.last_update "
-             "FROM TBL_Services,TBL_Services_Updates "
-             "WHERE TBL_Services.id = TBL_Services_Updates.service_id AND "
-             "TBL_Services_Updates.last_update =(select max(TBL_Services_Updates.last_update) "
-             "FROM TBL_Services_Updates);")
+@app.route('/api/room/<id_room>/predict', methods=['GET'])
+def api_room_prediction(id_room):
+    query = ("SELECT"
+             " DATEPART(HOUR, time) as hour,"
+             " AVG(occupied_seats) as occupied_seats_avg,"
+             " AVG(empty_seats) as empty_seats_avg "
+             "FROM TBL_Eventos "
+             "WHERE "
+             "TBL_Salas_id = " + id_room + " "
+             "AND time > DATEADD(day, -5, CURRENT_TIMESTAMP) "
+             "GROUP BY TBL_Salas_id, DATEPART(HOUR, time) "
+             "ORDER BY hour ASC")
 
     conn = pyodbc.connect(values.connection_string)
     cur = conn.cursor()
@@ -166,10 +172,71 @@ def api_services_status():
     return jsonify(data)
 
 
+# @app.route('/api/services/status', methods=['GET'])
+# def api_services_status():
+#     query = ("SELECT TBL_Services.name,TBL_Services_Updates.status,TBL_Services_Updates.last_update "
+#              "FROM TBL_Services,TBL_Services_Updates "
+#              "WHERE TBL_Services.id = TBL_Services_Updates.service_id AND "
+#              "TBL_Services_Updates.last_update =(select max(TBL_Services_Updates.last_update) "
+#              "FROM TBL_Services_Updates);")
+#
+#     conn = pyodbc.connect(values.connection_string)
+#     cur = conn.cursor()
+#
+#     all_results = cur.execute(query).fetchall()
+#     columns = [column[0] for column in cur.description]
+#
+#     data = []
+#     for row in all_results:
+#         data.append(dict(zip(columns, list(row))))
+#
+#     return jsonify(data)
+
+
+@app.route('/api/services/status', methods=['GET'])
+def api_services_status():
+    query = ("SELECT TBL_Services.id, TBL_Services.name, "
+             "SUM(CASE WHEN TBL_Services_Updates.status='Ok' THEN 1 ELSE 0 END) as ok_status, "
+             "SUM(CASE WHEN TBL_Services_Updates.status='Dead' THEN 1 ELSE 0 END) as dead_status "
+             "FROM TBL_Services, TBL_Services_Updates "
+             "WHERE TBL_Services.id = TBL_Services_Updates.service_id "
+             "GROUP BY TBL_Services.name, TBL_Services.id")
+
+    conn = pyodbc.connect(values.connection_string)
+    cur = conn.cursor()
+
+    all_results = cur.execute(query).fetchall()
+
+    get_service_names = "SELECT TOP (SELECT COUNT(*) FROM TBL_Services) * FROM TBL_Services_Updates " \
+                        "ORDER BY last_update DESC"
+
+    all_services = cur.execute(get_service_names).fetchall()
+
+    services = []
+    for line in all_services:
+        services.append(line)
+
+    data_status = []
+    for row in all_services:
+        data_status.append([row[1], row[2]])
+
+    columns = ['service_id', 'name', 'status', 'uptime']
+
+    data = []
+    for row in all_results:
+        for i in range(len(data_status)):
+            if int(data_status[i][0]) == int(row[0]):
+                uptime = round(100 * (1 - (row[3] / row[2])), 4)
+                linha = [row[0], row[1], data_status[i][1], uptime]
+                data.append(dict(zip(columns, list(linha))))
+
+    return jsonify(data)
+
+
 @app.route('/api/subscribed/<email>/<room0>/<room1>/<room2>/<room3>', methods=['GET'])
 def api_subscribed(email, room0, room1, room2, room3):
     # Verifica se o user existe
-    query = "SELECT id from TBL_Account WHERE email='"+str(email)+"'"
+    query = "SELECT id from TBL_Account WHERE email='" + str(email) + "'"
     conn = pyodbc.connect(values.connection_string)
     cur = conn.cursor()
     query_user = cur.execute(query).fetchall()
@@ -216,30 +283,4 @@ def insert_user_rooms(par_user_id, par_room_id):
     conn.commit()
 
 
-@app.route('/api/room/<id_room>/predict', methods=['GET'])
-def api_room_prediction(id_room):
-    query = ("SELECT"
-             " DATEPART(HOUR, time) as hour,"
-             " AVG(occupied_seats) as occupied_seats_avg,"
-             " AVG(empty_seats) as empty_seats_avg "
-             "FROM TBL_Eventos "
-             "WHERE "
-             "TBL_Salas_id = " + id_room + " "
-             "AND time > DATEADD(day, -5, CURRENT_TIMESTAMP) "
-             "GROUP BY TBL_Salas_id, DATEPART(HOUR, time) "
-             "ORDER BY hour ASC")
-
-    conn = pyodbc.connect(values.connection_string)
-    cur = conn.cursor()
-
-    all_results = cur.execute(query).fetchall()
-    columns = [column[0] for column in cur.description]
-
-    data = []
-    for row in all_results:
-        data.append(dict(zip(columns, list(row))))
-
-    return jsonify(data)
-
-
-app.run('0.0.0.0')
+app.run()
