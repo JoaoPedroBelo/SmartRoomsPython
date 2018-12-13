@@ -205,7 +205,7 @@ def api_subscribed(email, room0, room1, room2, room3):
         insert_user_rooms(id, 2)
     if int(room3) == 1:
         insert_user_rooms(id, 3)
-    return jsonify("ok")
+    return jsonify("Registered successfully")
 
 
 def insert_user_rooms(par_user_id, par_room_id):
