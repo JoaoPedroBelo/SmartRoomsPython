@@ -147,7 +147,11 @@ def api_room_daily_occupation():
 
 @app.route('/api/services/status', methods=['GET'])
 def api_services_status():
-    query = "SELECT TBL_Services.name,status,last_update FROM TBL_Services"
+    query = ("SELECT TBL_Services.name,TBL_Services_Updates.status,TBL_Services_Updates.last_update "
+             "FROM TBL_Services,TBL_Services_Updates "
+             "WHERE TBL_Services.id = TBL_Services_Updates.service_id AND "
+             "TBL_Services_Updates.last_update =(select max(TBL_Services_Updates.last_update) "
+             "FROM TBL_Services_Updates);")
 
     conn = pyodbc.connect(values.connection_string)
     cur = conn.cursor()
@@ -238,4 +242,4 @@ def api_room_prediction(id_room):
     return jsonify(data)
 
 
-app.run()
+app.run('0.0.0.0')
