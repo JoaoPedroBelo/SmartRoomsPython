@@ -73,7 +73,7 @@ def get_user_rooms_data(par_cursor, par_user_id):
                            "where TBL_Eventos.TBL_Salas_id=TBL_Salas.id "
                            "and TBL_Account.id=TBL_Account_has_TBL_Salas.TBL_Account_id "
                            "and TBL_Account_has_TBL_Salas.TBL_Salas_id = TBL_Salas.id "
-                           "and TBL_Account.id="+str(par_user_id)+")")
+                           "and TBL_Account.id="+str(par_user_id)+") ORDER BY nome_sala asc")
         data = par_cursor.fetchall()
         for row in data:
             rooms_data.append(list(row))
