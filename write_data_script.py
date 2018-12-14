@@ -201,8 +201,8 @@ if __name__ == "__main__":
 
         try: # tries to close the cursor if its still open
             cursor.close()
+            connection.close()
         except pyodbc.Error as e:
             pass
-        connection.close()
 
     # server.close()
