@@ -84,12 +84,12 @@ def get_user_rooms_data(par_cursor, par_user_id):
 
 
 if __name__ == "__main__":
-    connection = connect_database()
-    cursor = connection.cursor()
-    message = "the information about the room you have chosen: " + '\n'
-    email = ""
-    now = datetime.now()
     if 9 <= now.hour <= 21:
+        connection = connect_database()
+        cursor = connection.cursor()
+        message = "the information about the room you have chosen: " + '\n'
+        email = ""
+        now = datetime.now()
         for user in get_users_subscrive(cursor):
             for rooms in get_user_rooms_data(cursor, user[0]):
                 email = rooms[0]
