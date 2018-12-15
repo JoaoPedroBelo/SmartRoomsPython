@@ -283,4 +283,4 @@ def insert_user_rooms(par_user_id, par_room_id):
     conn.commit()
 
 
-app.run()
+app.run('0.0.0.0')
