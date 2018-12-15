@@ -155,7 +155,7 @@ def api_room_prediction(id_room):
              "FROM TBL_Eventos "
              "WHERE "
              "TBL_Salas_id = " + id_room + " "
-             "AND time > DATEADD(day, -5, CURRENT_TIMESTAMP) "
+             "AND time > DATEADD(day, -14, CURRENT_TIMESTAMP) "
              "GROUP BY TBL_Salas_id, DATEPART(HOUR, time) "
              "ORDER BY hour ASC")
 
@@ -226,7 +226,7 @@ def api_services_status():
     for row in all_results:
         for i in range(len(data_status)):
             if int(data_status[i][0]) == int(row[0]):
-                uptime = round(100 * (1 - (row[3] / row[2])), 4)
+                uptime = str(round(100 * (row[2] / (row[3] + row[2])), 4)) + " %"
                 linha = [row[0], row[1], data_status[i][1], uptime]
                 data.append(dict(zip(columns, list(linha))))
 
