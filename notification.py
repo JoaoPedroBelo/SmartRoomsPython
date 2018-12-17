@@ -5,7 +5,7 @@ import pyodbc
 from datetime import datetime
 from constants import values, functions
 
-functions.start_logging("/home/pi/projeto/notification.log")
+functions.start_logging("/home/pi/projeto/notifications.log")
 
 
 def connect_database():
@@ -90,9 +90,7 @@ if __name__ == "__main__":
     for user in get_users_subscrive(cursor):
         for rooms in get_user_rooms_data(cursor, user[0]):
             email = rooms[0]
-            message += str(rooms[2]) + " empty seats in " + rooms[1] + '\n' + str(rooms[3])\
-                       + " ocupied seats in " + rooms[1] + '\n'
-        message += '\n'+"To unsubscribe visit the website insert your email and uncheck all the boxes."
+            message += str(rooms[2]) + " empty seats in " + rooms[1] + '\n' + str(rooms[3]) + " ocupied seats in " + rooms[1] + '\n'
         send_email(email, message)
         message = "the information of the room you have chosen: " + '\n'  # limpa mensagem depois do ciclo
 

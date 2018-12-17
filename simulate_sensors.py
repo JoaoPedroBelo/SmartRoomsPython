@@ -3,7 +3,6 @@ from random import randint
 import time
 import socket
 from constants import functions
-import logging
 
 
 def send_data(par_sensoractivate, par_rooms):
@@ -15,15 +14,18 @@ def send_data(par_sensoractivate, par_rooms):
                       + str(datetime.now()))
 
 
-def generate_persons(par_night, par_day):
+def generate_people(par_night, par_day):
     now = datetime.now()
     if not verify_weekend():
         if par_day <= now.hour <= par_night:
-            return 2   # chance de uma pessoa passar no sensor 50%
+            if verify_rush_time() == "in" or verify_rush_time() == "out":
+                return 1   # chance de uma pessoa passar no sensor em hora de entrada ou saida
+            else:
+                return 2    # em horas normais
         else:
-            return 10  # chance de uma pessoa passar
+            return 50  # chance de uma pessoa passar a noite
     else:
-        return 50  # chance de uma pessoa passar
+        return 50  # chance de uma pessoa passar ao fim de semana
 
 
 def verify_weekend():
@@ -34,21 +36,28 @@ def verify_weekend():
         return False
 
 
-def generate_in_out():
+def verify_rush_time(): #função utilizada para verificar horas de ponta
     now = datetime.now()
-
     if 8 <= now.hour <= 11:
-        in_out = randint(1, 10)
+        return"in"
+    elif 17 <= now.hour <= 21:
+        return"out"
+
+
+def generate_in_out():
+
+    if verify_rush_time() == "in":
+        in_out = randint(1, 20)
         if in_out != 1:
             return 0  # Entrada
         else:
             return 1  # Saida
-    elif 17 <= now.hour <= 20:
-        in_out = randint(1, 10)
+    elif verify_rush_time() == "out":
+        in_out = randint(1, 20)
         if in_out != 1:
-            return 1  # Entrada
+            return 1  # Saida
         else:
-            return 0   # Saida
+            return 0   # Entrada
     else:
         in_out = randint(0, 1)
         return in_out
@@ -57,7 +66,6 @@ def generate_in_out():
 functions.start_logging('/home/pi/projeto/simulate_sensors.log')
 server_address = ('localhost', 6789)
 max_size = 4096
-
 functions.message(str(datetime.now()) + ': ' + 'Starting the client.')
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 first_time_run = 0  # Primeira vez que o programa é executado
@@ -69,7 +77,7 @@ while True:  # making a loop
     day = 8      # hora que começa o dia
 
     if first_time_run != 0:
-        behavior = randint(1, generate_persons(night, day))  # 1 significa sensor ativado
+        behavior = randint(1, generate_people(night, day))  # 1 significa sensor ativado
     else:
         behavior = 1
         first_time_run = 1
