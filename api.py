@@ -14,15 +14,15 @@ CORS(app)
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>SmartStudyRooms</h1>
-<p><a href="http://smartrooms.ddns.net:5000/api/events">Get All Events</a> </p>
-<p><a href="http://smartrooms.ddns.net:5000/api/rooms">Get All Rooms</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation">Get All Rooms Occupation</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/0/last-event">Get Room &lt;id&gt; Last Event</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/0/events/2018-11-01T00:00:00/2018-12-11T00:00:00">Get Room &lt;id&gt; events From &lt;date&gt; TO &lt;date&gt;</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/room/0/predict">Get Room &lt;id&gt; Predict</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/rooms/occupation/daily">Get daily occupation(week_day=(1-Monday;2-Tuesday,...)</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/services/status">Get services status</a></p>
-<p><a href="http://smartrooms.ddns.net:5000/api/subscribed/<email>/<room0>/<room1>/<room2>/<room3>">subscribe</a></p>
+<p><a href="/api/events">Get All Events</a> </p>
+<p><a href="/api/rooms">Get All Rooms</a></p>
+<p><a href="/api/rooms/occupation">Get All Rooms Occupation</a></p>
+<p><a href="/api/room/0/last-event">Get Room &lt;id&gt; Last Event</a></p>
+<p><a href="/api/room/0/events/2018-11-01T00:00:00/2018-12-11T00:00:00">Get Room &lt;id&gt; events From &lt;date&gt; TO &lt;date&gt;</a></p>
+<p><a href="/api/room/0/predict">Get Room &lt;id&gt; Predict</a></p>
+<p><a href="/api/rooms/occupation/daily">Get daily occupation(week_day=(1-Monday;2-Tuesday,...)</a></p>
+<p><a href="/api/services/status">Get services status</a></p>
+<p><a href="/api/subscribed/<email>/<room0>/<room1>/<room2>/<room3>">subscribe</a></p>
 
  '''
 
